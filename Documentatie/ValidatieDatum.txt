@@ -1,0 +1,15 @@
+validatie datum niet in verleden en max 7 dagen van nu:
+
+ if (value < DateTime.Now)
+ {
+     throw new ReservatieException
+         ($"Je kan geen reservatie maken in het verleden. Vandaag zijn we {DateTime.Now.Date}");
+ }
+ if (value > DateTime.Now.AddDays(7))
+ {
+     throw new ReservatieException("Je kan een reservatie maximum 7 dagen op voorhand maken!");
+ }
+ else
+ { 
+     datum = value; 
+ }
