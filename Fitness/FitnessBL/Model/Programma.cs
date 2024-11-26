@@ -9,7 +9,7 @@ namespace FitnessBL.Model
 {
     public class Programma
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
 
 		private string naam;
 
@@ -67,9 +67,18 @@ namespace FitnessBL.Model
 			}
 		}
 
-		public List<Klant> Klanten = new List<Klant>();
+		public Dictionary<int, Klant> Klanten = new Dictionary<int, Klant>();
 
-        public Programma(int? id, string naam, string doelpubliek, DateTime startDatum, int maxAantal, List<Klant> klanten)
+        public Programma(string naam, string doelpubliek, DateTime startDatum, int maxAantal, Dictionary<int, Klant> klanten)
+        {
+            Naam = naam;
+            Doelpubliek = doelpubliek;
+            StartDatum = startDatum;
+            MaxAantal = maxAantal;
+            Klanten = klanten;
+        }
+
+        public Programma(int id, string naam, string doelpubliek, DateTime startDatum, int maxAantal, Dictionary<int, Klant> klanten)
         {
             Id = id;
             Naam = naam;
@@ -78,5 +87,38 @@ namespace FitnessBL.Model
             MaxAantal = maxAantal;
             Klanten = klanten;
         }
+
+		public void SchrijfKlantIn(Klant klant)
+		{
+			if (Klanten.Count + 1 > maxAantal)
+			{
+				throw new ProgrammaException("Het maximum aantal klanten is al bereikt voor dit programma!");
+			}
+			else
+			{
+				if (Klanten.ContainsKey(klant.Id))
+				{
+					throw new ProgrammaException("Deze klant is al ingeschreven voor het programma!");
+				}
+				else
+				{ 
+					Klanten.Add(klant.Id, klant);
+				}
+
+			}
+		}
+
+		public void SchrijfKlantUit(Klant klant)
+		{
+			if (!Klanten.ContainsKey(klant.Id))
+			{
+				throw new ProgrammaException
+					("Deze klant is niet ingeschreven voor dit programma dus kan hij niet worden uitgeschreven!");
+			}
+			else
+			{ 
+				Klanten.Remove(klant.Id);
+			}
+		}
     }
 }

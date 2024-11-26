@@ -28,5 +28,15 @@ namespace FitnessBL.Model
 			}
 		}
 
-	}
+        public Toestel(string beschrijving)
+        {
+            Beschrijving = beschrijving;
+        }
+
+        public Toestel(int id, string beschrijving)
+        {
+            Id = id;
+            Beschrijving = beschrijving;
+        }
+    }
 }

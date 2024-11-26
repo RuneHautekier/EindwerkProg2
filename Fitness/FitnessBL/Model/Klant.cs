@@ -4,13 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace FitnessBL.Model
 {
     public class Klant
     {
-		public int? Id { get; set; }
+		public int Id { get; set; }
 
 		private string voornaam;
 
@@ -61,7 +62,14 @@ namespace FitnessBL.Model
                 }
                 else
                 {
-                    emailadres = value;
+                    if (!Regex.IsMatch(value, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                    {
+                        throw new KlantException("Ongeldig e-mailadres!");
+                    }
+                    else
+                    { 
+                        emailadres = value;
+                    }
                 }
             }
         }
@@ -99,7 +107,7 @@ namespace FitnessBL.Model
             }
         }
 
-        List<string> Interesses { get; set; }
+        List<string> Interesses { get; set; } = new List<string>();
 
         private TypeKlant type;
 
@@ -108,7 +116,7 @@ namespace FitnessBL.Model
             get { return type; }
             set 
             {
-                if (value != TypeKlant.Bronze || value != TypeKlant.Silver || value != TypeKlant.Gold)
+                if (value != TypeKlant.Bronze && value != TypeKlant.Silver && value != TypeKlant.Gold)
                 {
                     throw new KlantException("De klant moet van het type Bronze, Silver of Gold zijn!");
                 }
@@ -119,8 +127,7 @@ namespace FitnessBL.Model
             }
         }
 
-        
-        public Klant(string voornaam, string achternaam, string emailadres, string verblijfsplaats, DateTime geboorteDatum, List<string>? interesses, TypeKlant type)
+        public Klant(string voornaam, string achternaam, string emailadres, string verblijfsplaats, DateTime geboorteDatum, List<string> interesses, TypeKlant type)
         {
             Voornaam = voornaam;
             Achternaam = achternaam;
@@ -131,7 +138,7 @@ namespace FitnessBL.Model
             Type = type;
         }
 
-        public Klant(int id, string voornaam, string achternaam, string emailadres, string verblijfsplaats, DateTime geboorteDatum, List<string>? interesses, TypeKlant type)
+        public Klant(int id, string voornaam, string achternaam, string emailadres, string verblijfsplaats, DateTime geboorteDatum, List<string> interesses, TypeKlant type)
         {
             Id = id;
             Voornaam = voornaam;
@@ -141,6 +148,33 @@ namespace FitnessBL.Model
             GeboorteDatum = geboorteDatum;
             Interesses = interesses;
             Type = type;
+        }
+
+        public void VoegIntresseToe(string interesse)
+        {
+            string interesseStyled = interesse.Trim().ToLower();
+
+            if (Interesses.Contains(interesseStyled))
+            {
+                throw new KlantException($"{interesse} zit al in de lijst met interesses!");
+            }
+            else
+            { 
+                Interesses.Add(interesseStyled);
+            }
+        }
+        public void VerwijderInteresse(string interesse)
+        {
+            string interesseStyled = interesse.Trim().ToLower();
+            if (!Interesses.Contains(interesseStyled))
+            {
+                throw new KlantException
+                    ($"{interesseStyled} kan niet worden verwijderd uit de lijst van interesses aangezien deze er niet inzit!");
+            }
+            else
+            { 
+                Interesses.Remove(interesseStyled);
+            }
         }
     }
 }
