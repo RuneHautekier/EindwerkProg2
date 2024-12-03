@@ -38,5 +38,6 @@ namespace FitnessBL.Model
             Id = id;
             Beschrijving = beschrijving;
         }
+
     }
 }

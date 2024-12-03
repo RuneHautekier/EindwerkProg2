@@ -25,6 +25,11 @@ namespace ConsoleAppFitness
                 id++;
             }
 
+            foreach (var tijdslot in tijdsloten)
+            {
+                Console.WriteLine($"Id: {tijdslot.Id}, Start: {tijdslot.StartDatum}, End: {tijdslot.EndDatum}, Part of Day: {tijdslot.DagDeel}");
+            }
+
 
         }
     }
