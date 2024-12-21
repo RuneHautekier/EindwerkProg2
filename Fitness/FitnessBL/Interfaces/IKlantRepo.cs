@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FitnessEF.Model
+namespace FitnessBL.Interfaces
 {
-    public class ReservatieEF
-    {
-    }
+    public class IKlantRepo { }
 }

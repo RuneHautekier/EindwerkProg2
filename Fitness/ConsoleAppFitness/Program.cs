@@ -6,7 +6,7 @@ namespace ConsoleAppFitness
     {
         static void Main(string[] args)
         {
-            List<Tijdslot> tijdsloten = new List<Tijdslot>();
+            List<Time_slot> tijdsloten = new List<Time_slot>();
             int id = 1;
 
             for (int uur = 8; uur < 22; uur++)
@@ -20,17 +20,17 @@ namespace ConsoleAppFitness
                 else
                     dagDeel = "Avond";
 
-                Tijdslot tijdslot = new Tijdslot(id, uur, uur + 1, dagDeel);
+                Time_slot tijdslot = new Time_slot(id, uur, uur + 1, dagDeel);
                 tijdsloten.Add(tijdslot);
                 id++;
             }
 
             foreach (var tijdslot in tijdsloten)
             {
-                Console.WriteLine($"Id: {tijdslot.Id}, Start: {tijdslot.StartDatum}, End: {tijdslot.EndDatum}, Part of Day: {tijdslot.DagDeel}");
+                Console.WriteLine(
+                    $"Id: {tijdslot.time_slot_id}, Start: {tijdslot.start_time}, End: {tijdslot.end_time}, Part of Day: {tijdslot.part_of_day}"
+                );
             }
-
-
         }
     }
 }
