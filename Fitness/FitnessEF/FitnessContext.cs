@@ -20,7 +20,7 @@ namespace FitnessEF
         public DbSet<Runningsession_mainEF> runningsession_main { get; set; }
         public DbSet<Runningsession_detailEF> runningsession_detail { get; set; }
 
-        public DbSet<CyclingSessionEF> cyclingSession { get; set; }
+        public DbSet<CyclingSessionEF> cyclingsession { get; set; }
 
         private string connectionString;
 
@@ -55,12 +55,15 @@ namespace FitnessEF
                 .Entity<Runningsession_detailEF>()
                 .HasKey(rs => new { rs.runningsession_id, rs.seq_nr }); // Definieer samengestelde sleutel
 
-            //modelBuilder
-            //    .Entity<ReservationEF>() // Vervang JouwEntiteit door de juiste entiteit
-            //    .HasOne(j => j.Time_slotEF) // Verbind met de navigatie-eigenschap
-            //    .WithMany() // Afhankelijk van je relatie, bijvoorbeeld .WithMany() als het een many-to-one is
-            //    .HasForeignKey(j => j.time_slot_id) // Specificeer de kolomnaam
-            //    .OnDelete(DeleteBehavior.Restrict); // Als je een delete-behavior wilt toevoegen, bijvoorbeeld
+            // Samengestelde sleutel configureren
+            modelBuilder
+                .Entity<ReservationEF>()
+                .HasKey(r => new
+                {
+                    r.reservation_id,
+                    r.time_slot_id,
+                    r.equipment_id
+                });
 
             base.OnModelCreating(modelBuilder);
         }

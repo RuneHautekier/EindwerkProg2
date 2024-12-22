@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FitnessBL.Exceptions;
+using Newtonsoft.Json;
 
 namespace FitnessBL.Model
 {
@@ -26,57 +28,68 @@ namespace FitnessBL.Model
                 date = value;
             }
         }
-        public Equipment Equipment { get; set; }
         public Member Member { get; set; }
-        public List<Time_slot> TimeSlots { get; set; } = new List<Time_slot>();
+
+        [Newtonsoft.Json.JsonIgnore] // Negeer de originele Dictionary bij serialisatie
+        public Dictionary<Time_slot, Equipment> TimeslotEquipment =
+            new Dictionary<Time_slot, Equipment>();
+
+        [JsonProperty("EquipmentPerTimeslot")] // Nieuwe JSON-weergave
+        public List<object> TimeslotEquipmentSerialized
+        {
+            get
+            {
+                return TimeslotEquipment
+                    .Select(kvp => new { TimeSlot = kvp.Key, Equipment = kvp.Value })
+                    .ToList<object>();
+            }
+        }
 
         public Reservation(
             DateTime datum,
-            Equipment toestel,
             Member klant,
-            List<Time_slot> tijdslots
+            Dictionary<Time_slot, Equipment> timeslotEquipment
         )
         {
             Date = datum;
-            Equipment = toestel;
             Member = klant;
-            TimeSlots = tijdslots;
+            TimeslotEquipment = timeslotEquipment;
         }
 
         public Reservation(
             int id,
             DateTime datum,
-            Equipment toestel,
             Member klant,
-            List<Time_slot> tijdslots
+            Dictionary<Time_slot, Equipment> timeslotEquipment
         )
         {
             Reservation_id = id;
             Date = datum;
-            Equipment = toestel;
             Member = klant;
-            TimeSlots = tijdslots;
+            TimeslotEquipment = timeslotEquipment;
         }
 
-        public void voegTijdSlotToe(Time_slot tijdslot)
+        public void voegTijdSlotToe(Time_slot tijdslot, Equipment equipment)
         {
-            if (TimeSlots.Count == 2)
+            if (TimeslotEquipment.Count == 2)
             {
                 throw new ReservatieException("Je kan maximaal 2 tijdsloten na elkaar reserveren");
             }
             else
             {
-                if (TimeSlots.Contains(tijdslot))
+                if (TimeslotEquipment.Keys.Contains(tijdslot))
                 {
                     throw new ReservatieException("Dit Time_slot is al reeds toegevoegd!");
                 }
                 else
                 {
                     if (
-                        TimeSlots.Count != 0
+                        TimeslotEquipment.Count != 0
                         && (
-                            tijdslot.Time_slot_id + 1 != TimeSlots[0].Time_slot_id
-                            && tijdslot.Time_slot_id - 1 != TimeSlots[0].Time_slot_id
+                            tijdslot.Time_slot_id + 1
+                                != TimeslotEquipment.Keys.ElementAt(0).Time_slot_id
+                            && tijdslot.Time_slot_id - 1
+                                != TimeslotEquipment.Keys.ElementAt(0).Time_slot_id
                         )
                     )
                     {
@@ -84,7 +97,7 @@ namespace FitnessBL.Model
                     }
                     else
                     {
-                        TimeSlots.Add(tijdslot);
+                        TimeslotEquipment.Add(tijdslot, equipment);
                     }
                 }
             }
@@ -92,7 +105,7 @@ namespace FitnessBL.Model
 
         public void verwijderTijdslot(Time_slot tijdslot)
         {
-            if (!TimeSlots.Contains(tijdslot))
+            if (!TimeslotEquipment.Keys.Contains(tijdslot))
             {
                 throw new ReservatieException(
                     "Dit tijdslot is niet gereserveerd door u dus kunt u hem niet verwijderen!"
@@ -100,7 +113,7 @@ namespace FitnessBL.Model
             }
             else
             {
-                TimeSlots.Remove(tijdslot);
+                TimeslotEquipment.Remove(tijdslot);
             }
         }
     }

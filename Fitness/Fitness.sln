@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConsoleApps", "ConsoleApps"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppDatabaseEF", "ConsoleAppDatabaseEF\ConsoleAppDatabaseEF.csproj", "{AA93D06C-9792-4BD2-9BFA-C8AD930EAD28}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessAPI", "FitnessAPI\FitnessAPI.csproj", "{93E1E3FB-B265-464F-9F4D-B681FF034C73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{AA93D06C-9792-4BD2-9BFA-C8AD930EAD28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA93D06C-9792-4BD2-9BFA-C8AD930EAD28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA93D06C-9792-4BD2-9BFA-C8AD930EAD28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93E1E3FB-B265-464F-9F4D-B681FF034C73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93E1E3FB-B265-464F-9F4D-B681FF034C73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93E1E3FB-B265-464F-9F4D-B681FF034C73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93E1E3FB-B265-464F-9F4D-B681FF034C73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

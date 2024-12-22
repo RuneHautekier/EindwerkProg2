@@ -34,7 +34,7 @@ namespace FitnessEF.Model
         public string trainingtype { get; set; } // Vroeger: TrainingsType
 
         [Column(TypeName = "nvarchar(500)")]
-        public string comment { get; set; } // Vroeger: Opmerking
+        public string? comment { get; set; } // Vroeger: Opmerking
 
         [ForeignKey("member")]
         public int member_id { get; set; } // Vroeger: KlantId

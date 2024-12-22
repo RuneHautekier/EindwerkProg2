@@ -21,7 +21,7 @@ namespace FitnessEF.Model
         public string last_name { get; set; }
 
         [Column(TypeName = "nvarchar(50)")]
-        public string email { get; set; }
+        public string? email { get; set; }
 
         [Required]
         [Column(TypeName = "nvarchar(200)")]
@@ -31,7 +31,7 @@ namespace FitnessEF.Model
         public DateTime birthday { get; set; }
 
         [Column(TypeName = "nvarchar(500)")]
-        public string interests { get; set; }
+        public string? interests { get; set; }
 
         [Required]
         [Column(TypeName = "nvarchar(20)")]

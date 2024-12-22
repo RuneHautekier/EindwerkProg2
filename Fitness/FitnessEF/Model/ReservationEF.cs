@@ -12,7 +12,7 @@ namespace FitnessEF.Model
     public class ReservationEF
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int reservation_id { get; set; }
 
         [Required]
