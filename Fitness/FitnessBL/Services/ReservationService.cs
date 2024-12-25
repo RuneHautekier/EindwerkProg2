@@ -83,6 +83,7 @@ namespace FitnessBL.Services
                 }
             }
 
+            reservationRepo.CheckIfReservationExists(reservation);
             reservationRepo.AddReservation(reservation);
             return reservation;
         }

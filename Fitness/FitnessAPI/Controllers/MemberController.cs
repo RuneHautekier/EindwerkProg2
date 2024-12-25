@@ -1,4 +1,5 @@
-﻿using FitnessBL.Model;
+﻿using FitnessAPI.DTO;
+using FitnessBL.Model;
 using FitnessBL.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +26,35 @@ namespace FitnessAPI.Controllers
             }
 
             return Ok(member);
+        }
+
+        [HttpPost("/MemberToevoegen")]
+        public IActionResult Gebruiker([FromBody] MemberAanmakenDTO memberDTO)
+        {
+            try
+            {
+                Member member = new Member(
+                    memberDTO.Voornaam,
+                    memberDTO.Achternaam,
+                    memberDTO.Email,
+                    memberDTO.Adres,
+                    memberDTO.Geboortedatum,
+                    memberDTO.Interesses,
+                    memberDTO.TypeKlant
+                );
+
+                memberService.AddMember(member);
+
+                return CreatedAtAction(
+                    nameof(GetMemberId), // Specify the action name of the "Get" endpoint
+                    new { id = member.Member_id }, // Parameter voor de Get eindpoint
+                    member // Return the created gebruiker object
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

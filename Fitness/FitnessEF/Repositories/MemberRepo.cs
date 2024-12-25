@@ -50,5 +50,32 @@ namespace FitnessEF.Repositories
                 throw new RepoException("MemberRepo - GetMemberId", ex);
             }
         }
+
+        public Member AddMember(Member member)
+        {
+            try
+            {
+                MemberEF m = MapMember.MapToDB(member);
+                ctx.members.Add(m);
+                SaveAndClear();
+                return member;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - AddMember", ex);
+            }
+        }
+
+        public bool IsMemberName(string vn, string ln)
+        {
+            try
+            {
+                return ctx.members.Any(x => x.first_name == vn && x.last_name == ln);
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("GebruikerRepo - IsGebruikerEmail");
+            }
+        }
     }
 }

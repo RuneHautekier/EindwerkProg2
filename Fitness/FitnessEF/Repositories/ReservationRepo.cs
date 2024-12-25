@@ -11,6 +11,7 @@ using FitnessEF.Mappers;
 using FitnessEF.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FitnessEF.Repositories
 {
@@ -86,6 +87,27 @@ namespace FitnessEF.Repositories
             catch (Exception ex)
             {
                 throw new RepoException("TrainingRepo - AddTraining", ex);
+            }
+        }
+
+        public void CheckIfReservationExists(Reservation rs)
+        {
+            List<ReservationEF> rsEFs = new List<ReservationEF>();
+            foreach (Time_slot timeSlot in rs.TimeslotEquipment.Keys)
+            {
+                rsEFs = ctx
+                    .reservation.Where(ts => ts.time_slot_id == timeSlot.Time_slot_id)
+                    .Where(e => e.equipment_id == rs.TimeslotEquipment[timeSlot].Equipment_id)
+                    .Where(d => d.date == rs.Date)
+                    .Include(ts => ts.Time_slot)
+                    .Include(e => e.Equipment)
+                    .AsNoTracking()
+                    .ToList();
+            }
+
+            if (rsEFs.Any())
+            {
+                throw new RepoException("Dit toestel is al gereserveerd voor dit tijdslot!");
             }
         }
     }

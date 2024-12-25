@@ -10,5 +10,7 @@ namespace FitnessBL.Interfaces
     public interface IMemberRepo
     {
         Member GetMemberId(int id);
+        Member AddMember(Member member);
+        bool IsMemberName(string vn, string ln);
     }
 }

@@ -29,5 +29,22 @@ namespace FitnessBL.Services
                 throw new ServiceException("MemberService - GetMemberId");
             }
         }
+
+        public Member AddMember(Member member)
+        {
+            try
+            {
+                if (member == null)
+                    throw new ServiceException("AddMember - Member is null");
+                if (memberRepo.IsMemberName(member.FirstName, member.LastName))
+                    throw new ServiceException("AddMember - Member bestaat al (zelfde naam)");
+                memberRepo.AddMember(member);
+                return member;
+            }
+            catch (Exception ex)
+            {
+                throw new ServiceException("AddMember", ex);
+            }
+        }
     }
 }
