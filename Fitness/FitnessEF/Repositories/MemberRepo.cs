@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+using FitnessBL.Exceptions;
 using FitnessBL.Interfaces;
 using FitnessBL.Model;
 using FitnessEF.Exceptions;
@@ -51,6 +53,31 @@ namespace FitnessEF.Repositories
             }
         }
 
+        public Member GetMemberNaam(string vn, string ln)
+        {
+            try
+            {
+                MemberEF memberEF = ctx
+                    .members.Where(x => x.first_name == vn)
+                    .Where(x => x.last_name == ln)
+                    .AsNoTracking()
+                    .FirstOrDefault();
+
+                if (memberEF == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return MapMember.MapToDomain(memberEF);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - GetMemberId", ex);
+            }
+        }
+
         public Member AddMember(Member member)
         {
             try
@@ -74,7 +101,32 @@ namespace FitnessEF.Repositories
             }
             catch (Exception ex)
             {
-                throw new RepoException("GebruikerRepo - IsGebruikerEmail");
+                throw new RepoException("MemberRepo - IsMemberName");
+            }
+        }
+
+        public void UpdateMember(Member member)
+        {
+            try
+            {
+                ctx.members.Update(MapMember.MapToDB(member));
+                SaveAndClear();
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - UpdateMember");
+            }
+        }
+
+        public bool IsMemberId(int id)
+        {
+            try
+            {
+                return ctx.members.Any(x => x.member_id == id);
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - IsMemberID", ex);
             }
         }
     }

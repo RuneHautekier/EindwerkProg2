@@ -1,4 +1,5 @@
 ﻿using FitnessAPI.DTO;
+using FitnessBL.Enums;
 using FitnessBL.Model;
 using FitnessBL.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -54,6 +55,50 @@ namespace FitnessAPI.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPatch("/MemberAanpassen/{voornaam}/{achternaam}")]
+        public IActionResult UpdateGebruikerSportief(
+            string voornaam,
+            string achternaam,
+            [FromQuery] DateTime GeboorteDatum,
+            [FromQuery] TypeKlant typeKlant,
+            [FromQuery] string? Voornaam = null,
+            [FromQuery] string? Achternaam = null,
+            [FromQuery] string? Email = null,
+            [FromQuery] string? Adres = null
+        )
+        {
+            try
+            {
+                // Haal de gebruiker op uit de database
+                Member member = memberService.GetMemberNaam(voornaam, achternaam);
+                if (member == null)
+                    return NotFound($"Gebruiker met naam {voornaam} {achternaam} niet gevonden.");
+
+                // Pas alleen de velden aan die zijn meegegeven (niet null)
+                if (!string.IsNullOrEmpty(Voornaam))
+                    member.FirstName = Voornaam;
+                if (!string.IsNullOrEmpty(Achternaam))
+                    member.LastName = Achternaam;
+                if (!string.IsNullOrEmpty(Email))
+                    member.Email = Email;
+                if (!string.IsNullOrEmpty(Adres))
+                    member.Address = Adres;
+                if (GeboorteDatum != null)
+                    member.Birthday = GeboorteDatum;
+                if (typeKlant != null)
+                    member.MemberType = typeKlant;
+
+                // Update het record in de database
+                memberService.UpdateMember(member);
+
+                return NoContent(); // 204 No Content
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Er is een fout opgetreden: {ex.Message}");
             }
         }
     }
