@@ -1,21 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FitnessBL.Exceptions;
 using FitnessBL.Interfaces;
 using FitnessBL.Model;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace FitnessBL.Services
 {
     public class ReservationService
     {
         private IReservationRepo reservationRepo;
+        private MemberService memberService;
+        private EquipmentService equipmentService;
+        private Time_slotService timeSlotService;
 
-        public ReservationService(IReservationRepo reservationRepo)
+        public ReservationService(
+            IReservationRepo reservationRepo,
+            MemberService memberService,
+            EquipmentService equipmentService,
+            Time_slotService timeSlotService
+        )
         {
             this.reservationRepo = reservationRepo;
+            this.memberService = memberService;
+            this.equipmentService = equipmentService;
+            this.timeSlotService = timeSlotService;
         }
 
         public Reservation GetReservationId(int id)
@@ -44,18 +58,33 @@ namespace FitnessBL.Services
 
         public Reservation AddReservation(Reservation reservation)
         {
-            try
-            {
-                if (reservation == null)
-                    throw new ServiceException("AddTraining - Training is null");
+            if (reservation == null)
+                throw new ServiceException("Reservation - Reservatie is null");
 
-                reservationRepo.AddReservation(reservation);
-                return reservation;
-            }
-            catch (Exception ex)
+            if (
+                reservation.TimeslotEquipment.Count() < 1
+                || reservation.TimeslotEquipment.Count() > 2
+            )
             {
-                throw new ServiceException("AddTraining", ex);
+                throw new ReservatieException(
+                    "Je moet minimaal 1 tijdslot en maximaal 2 tijdsloten reserveren!"
+                );
             }
+
+            if (reservation.TimeslotEquipment.Count() == 2)
+            {
+                int verschil = Math.Abs(
+                    reservation.TimeslotEquipment.Keys.First().Time_slot_id
+                        - reservation.TimeslotEquipment.Keys.Last().Time_slot_id
+                );
+                if (verschil != 1)
+                {
+                    throw new Time_SlotException("De tijdsloten moeten na elkaar liggen!");
+                }
+            }
+
+            reservationRepo.AddReservation(reservation);
+            return reservation;
         }
     }
 }
