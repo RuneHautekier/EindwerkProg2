@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using FitnessBL.Exceptions;
 
 namespace FitnessBL.Model
 {
@@ -24,8 +25,8 @@ namespace FitnessBL.Model
             {
                 if (value > DateTime.Now)
                 {
-                    throw new ArgumentException(
-                        "De datum van de fietssessie kan niet in de toekomst liggen."
+                    throw new CyclingSessionException(
+                        "De datum van de cyclingsession kan niet in de toekomst liggen."
                     );
                 }
                 date = value;
@@ -40,8 +41,8 @@ namespace FitnessBL.Model
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentException(
-                        "De duur van de fietssessie moet groter zijn dan 0."
+                    throw new CyclingSessionException(
+                        "De duration van de cyclingsession moet groter zijn dan 0."
                     );
                 }
                 duration = value;
@@ -56,7 +57,9 @@ namespace FitnessBL.Model
             {
                 if (value < 0)
                 {
-                    throw new ArgumentException("Het gemiddelde watt kan niet negatief zijn.");
+                    throw new CyclingSessionException(
+                        "Het gemiddelde wattage kan niet negatief zijn."
+                    );
                 }
                 avg_watt = value;
             }
@@ -70,8 +73,8 @@ namespace FitnessBL.Model
             {
                 if (value < 0 || value < max_watt)
                 {
-                    throw new ArgumentException(
-                        "Het maximale watt kan niet lager zijn dan het gemiddelde watt of negatief."
+                    throw new CyclingSessionException(
+                        "Het maximale wattage kan niet lager zijn dan het gemiddelde watt of negatief."
                     );
                 }
                 max_watt = value;
@@ -86,7 +89,9 @@ namespace FitnessBL.Model
             {
                 if (value < 0)
                 {
-                    throw new ArgumentException("De gemiddelde cadans kan niet negatief zijn.");
+                    throw new CyclingSessionException(
+                        "De gemiddelde cadans kan niet negatief zijn."
+                    );
                 }
                 avg_cadence = value;
             }
@@ -100,7 +105,7 @@ namespace FitnessBL.Model
             {
                 if (value < 0 || value < avg_cadence)
                 {
-                    throw new ArgumentException(
+                    throw new CyclingSessionException(
                         "De maximale cadans kan niet lager zijn dan de gemiddelde cadans of negatief."
                     );
                 }
@@ -116,7 +121,7 @@ namespace FitnessBL.Model
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ArgumentException("Het trainingstype mag niet leeg zijn.");
+                    throw new CyclingSessionException("Het trainingstype mag niet leeg zijn.");
                 }
                 trainingsType = value;
             }
@@ -137,7 +142,7 @@ namespace FitnessBL.Model
             {
                 if (value == null)
                 {
-                    throw new ArgumentException("de klant mag niet null zijn.");
+                    throw new MemberException("Member mag niet null zijn!");
                 }
                 member = value;
             }
@@ -157,8 +162,8 @@ namespace FitnessBL.Model
         {
             Date = datum;
             Duration = duur;
-            Avg_cadence = gemiddeldWatt;
-            Max_cadence = maximaalWatt;
+            Avg_watt = gemiddeldWatt;
+            Max_watt = maximaalWatt;
             Avg_cadence = gemiddeldeCadans;
             Max_cadence = maximaleCadans;
             TrainingsType = trainingsType;
@@ -182,8 +187,8 @@ namespace FitnessBL.Model
             Cyclingsession_id = id;
             Date = datum;
             Duration = duur;
-            Avg_cadence = gemiddeldWatt;
-            Max_cadence = maximaalWatt;
+            Avg_watt = gemiddeldWatt;
+            Max_watt = maximaalWatt;
             Avg_cadence = gemiddeldeCadans;
             Max_cadence = maximaleCadans;
             TrainingsType = trainingsType;

@@ -20,14 +20,10 @@ namespace FitnessBL.Services
 
         public IEnumerable<Equipment> GetEquipment()
         {
-            try
-            {
-                return equipmentRepo.GetEquipment();
-            }
-            catch (Exception ex)
-            {
-                throw new ServiceException("EquipmentService - GetEquipment");
-            }
+            IEnumerable<Equipment> equipment = equipmentRepo.GetEquipment();
+            if (equipment.Count() == 0)
+                throw new ServiceException("Er zit nog geen equipment in de database!");
+            return equipment;
         }
 
         public Equipment GetEquipmentId(int id)

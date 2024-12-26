@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace FitnessBL.Exceptions
 {
-    public class ToestelException : Exception
+    public class MemberException : Exception
     {
-        public ToestelException(string? message) : base(message)
-        {
-        }
+        public MemberException(string? message)
+            : base(message) { }
     }
 }

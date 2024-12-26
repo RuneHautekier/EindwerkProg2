@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace FitnessBL.Exceptions
 {
-    public class ReservatieException : Exception
+    public class ReservationException : Exception
     {
-        public ReservatieException(string? message) : base(message)
-        {
-        }
+        public ReservationException(string? message)
+            : base(message) { }
     }
 }

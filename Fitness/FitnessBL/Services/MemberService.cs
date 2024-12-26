@@ -20,14 +20,10 @@ namespace FitnessBL.Services
 
         public IEnumerable<Member> GetMembers()
         {
-            try
-            {
-                return memberRepo.GetMembers();
-            }
-            catch (Exception ex)
-            {
-                throw new ServiceException("MemberService - GetMembers");
-            }
+            IEnumerable<Member> members = memberRepo.GetMembers();
+            if (members.Count() == 0)
+                throw new ServiceException("Er zitten nog geen members in de database!");
+            return members;
         }
 
         public Member GetMemberId(int id)

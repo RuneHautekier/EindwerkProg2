@@ -171,7 +171,7 @@ namespace FitnessEF.Repositories
             }
             catch (Exception ex)
             {
-                throw new RepoException("MemberRepo - DeleteRepo");
+                throw new RepoException("MemberRepo - DeleteMember");
             }
         }
     }

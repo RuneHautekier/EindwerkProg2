@@ -43,6 +43,11 @@ namespace FitnessAPI
             ));
             builder.Services.AddSingleton<ReservationService>();
 
+            builder.Services.AddSingleton<ICyclingSessionRepo>(r => new CyclingSessionRepo(
+                connectionString
+            ));
+            builder.Services.AddSingleton<CyclingSessionService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

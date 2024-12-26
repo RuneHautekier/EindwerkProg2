@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace FitnessBL.Exceptions
 {
-    public class KlantException : Exception
+    public class ProgramException : Exception
     {
-
-        public KlantException(string? message) : base(message)
-        {
-        }
+        public ProgramException(string? message)
+            : base(message) { }
     }
 }

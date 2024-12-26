@@ -24,13 +24,11 @@ namespace FitnessAPI.Controllers
             try
             {
                 IEnumerable<Member> members = memberService.GetMembers();
-
                 return Ok(members);
             }
-            catch (Exception ex)
+            catch (ServiceException ex)
             {
-                // Foutafhandeling met een 500 Internal Server Error
-                return StatusCode(500, ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -63,7 +61,7 @@ namespace FitnessAPI.Controllers
         }
 
         [HttpPost("/MemberToevoegen")]
-        public IActionResult Gebruiker([FromBody] MemberAanmakenDTO memberDTO)
+        public IActionResult AddMember([FromBody] MemberAanmakenDTO memberDTO)
         {
             try
             {
@@ -85,7 +83,7 @@ namespace FitnessAPI.Controllers
                     member // Return the created gebruiker object
                 );
             }
-            catch (KlantException ex)
+            catch (MemberException ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -96,11 +94,11 @@ namespace FitnessAPI.Controllers
         }
 
         [HttpPatch("/MemberAanpassen/{voornaam}/{achternaam}")]
-        public IActionResult UpdateGebruikerSportief(
+        public IActionResult UpdateMember(
             string voornaam,
             string achternaam,
             [FromQuery] DateTime GeboorteDatum,
-            [FromQuery] TypeKlant typeKlant,
+            [FromQuery] TypeKlant? typeKlant,
             [FromQuery] string? Voornaam = null,
             [FromQuery] string? Achternaam = null,
             [FromQuery] string? Email = null,
@@ -122,11 +120,11 @@ namespace FitnessAPI.Controllers
                     member.Email = Email;
                 if (!string.IsNullOrEmpty(Adres))
                     member.Address = Adres;
-                if (GeboorteDatum != null)
+                if (GeboorteDatum != new DateTime(0001, 01, 01))
                     member.Birthday = GeboorteDatum;
-                if (typeKlant != null)
-                    member.MemberType = typeKlant;
-                if (Interesses.Count() != 0 || Interesses != null)
+                if (typeKlant.HasValue)
+                    member.MemberType = typeKlant.Value;
+                if (Interesses != null && Interesses.Count() != 0)
                     member.Interests = Interesses;
 
                 // Update het record in de database

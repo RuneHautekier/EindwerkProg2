@@ -71,7 +71,7 @@ namespace FitnessAPI.Controllers
                     reservation // Return DTO object
                 );
             }
-            catch (ReservatieException ex)
+            catch (ReservationException ex)
             {
                 return BadRequest(ex.Message);
             }

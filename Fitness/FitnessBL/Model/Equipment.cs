@@ -19,7 +19,7 @@ namespace FitnessBL.Model
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ToestelException("Het toestel moet een beschrijving hebben!");
+                    throw new EquipmentException("Het toestel moet een beschrijving hebben!");
                 }
                 else
                 {

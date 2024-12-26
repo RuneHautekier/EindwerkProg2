@@ -21,7 +21,7 @@ namespace FitnessBL.Model
             {
                 if (value > DateTime.Now.AddDays(7))
                 {
-                    throw new ReservatieException(
+                    throw new ReservationException(
                         "Een reservatie kan maximaal 1 week op voorhand geplaatst worden!"
                     );
                 }
@@ -73,13 +73,13 @@ namespace FitnessBL.Model
         {
             if (TimeslotEquipment.Count == 2)
             {
-                throw new ReservatieException("Je kan maximaal 2 tijdsloten na elkaar reserveren");
+                throw new ReservationException("Je kan maximaal 2 tijdsloten na elkaar reserveren");
             }
             else
             {
                 if (TimeslotEquipment.Keys.Contains(tijdslot))
                 {
-                    throw new ReservatieException("Dit Time_slot is al reeds toegevoegd!");
+                    throw new ReservationException("Dit Time_slot is al reeds toegevoegd!");
                 }
                 else
                 {
@@ -93,7 +93,9 @@ namespace FitnessBL.Model
                         )
                     )
                     {
-                        throw new ReservatieException("Je tijdsloten moeten op elkaar volgen dus!");
+                        throw new ReservationException(
+                            "Je tijdsloten moeten op elkaar volgen dus!"
+                        );
                     }
                     else
                     {
@@ -107,7 +109,7 @@ namespace FitnessBL.Model
         {
             if (!TimeslotEquipment.Keys.Contains(tijdslot))
             {
-                throw new ReservatieException(
+                throw new ReservationException(
                     "Dit tijdslot is niet gereserveerd door u dus kunt u hem niet verwijderen!"
                 );
             }

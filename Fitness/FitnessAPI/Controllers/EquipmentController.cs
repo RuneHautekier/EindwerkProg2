@@ -27,10 +27,9 @@ namespace FitnessAPI.Controllers
 
                 return Ok(equipments);
             }
-            catch (Exception ex)
+            catch (ServiceException ex)
             {
-                // Foutafhandeling met een 500 Internal Server Error
-                return StatusCode(500, ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 

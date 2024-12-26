@@ -21,7 +21,7 @@ namespace FitnessBL.Model
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ProgrammaException("Het programma moet een naam hebben!");
+                    throw new ProgramException("Het programma moet een naam hebben!");
                 }
                 else
                 {
@@ -39,7 +39,7 @@ namespace FitnessBL.Model
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ProgrammaException("Het doelpubliek moet ingevuld zijn!");
+                    throw new ProgramException("Het doelpubliek moet ingevuld zijn!");
                 }
                 else
                 {
@@ -59,7 +59,7 @@ namespace FitnessBL.Model
             {
                 if (value <= 0)
                 {
-                    throw new ProgrammaException("Het maximaal aantal leden moet meer dan 0 zijn!");
+                    throw new ProgramException("Het maximaal aantal leden moet meer dan 0 zijn!");
                 }
                 else
                 {
@@ -105,7 +105,7 @@ namespace FitnessBL.Model
         {
             if (Members.Count + 1 > Max_members)
             {
-                throw new ProgrammaException(
+                throw new ProgramException(
                     "Het maximum aantal klanten is al bereikt voor dit programma!"
                 );
             }
@@ -113,9 +113,7 @@ namespace FitnessBL.Model
             {
                 if (Members.ContainsKey(klant.Member_id))
                 {
-                    throw new ProgrammaException(
-                        "Deze klant is al ingeschreven voor het programma!"
-                    );
+                    throw new ProgramException("Deze klant is al ingeschreven voor het programma!");
                 }
                 else
                 {
@@ -128,7 +126,7 @@ namespace FitnessBL.Model
         {
             if (!Members.ContainsKey(klant.Member_id))
             {
-                throw new ProgrammaException(
+                throw new ProgramException(
                     "Deze klant is niet ingeschreven voor dit programma dus kan hij niet worden uitgeschreven!"
                 );
             }

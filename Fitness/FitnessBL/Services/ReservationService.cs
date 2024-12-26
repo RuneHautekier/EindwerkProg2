@@ -58,7 +58,7 @@ namespace FitnessBL.Services
                 || reservation.TimeslotEquipment.Count() > 2
             )
             {
-                throw new ReservatieException(
+                throw new ReservationException(
                     "Je moet minimaal 1 tijdslot en maximaal 2 tijdsloten reserveren!"
                 );
             }

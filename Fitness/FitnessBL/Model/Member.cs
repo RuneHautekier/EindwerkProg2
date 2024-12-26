@@ -22,7 +22,7 @@ namespace FitnessBL.Model
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new KlantException("De klant moet een firstName hebben!");
+                    throw new MemberException("De klant moet een firstName hebben!");
                 }
                 else
                 {
@@ -40,7 +40,7 @@ namespace FitnessBL.Model
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new KlantException("De klant moet een lastName hebben!");
+                    throw new MemberException("De klant moet een lastName hebben!");
                 }
                 else
                 {
@@ -58,13 +58,13 @@ namespace FitnessBL.Model
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new KlantException("De klant moet een emailadres hebben!");
+                    throw new MemberException("De klant moet een emailadres hebben!");
                 }
                 else
                 {
                     if (!Regex.IsMatch(value, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                     {
-                        throw new KlantException("Ongeldig e-mailadres!");
+                        throw new MemberException("Ongeldig e-mailadres!");
                     }
                     else
                     {
@@ -83,7 +83,7 @@ namespace FitnessBL.Model
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new KlantException("De klant moet een verblijfsplaats hebben!");
+                    throw new MemberException("De klant moet een verblijfsplaats hebben!");
                 }
                 else
                 {
@@ -101,7 +101,7 @@ namespace FitnessBL.Model
             {
                 if (value > DateTime.Now)
                 {
-                    throw new KlantException("De klant kan niet in de toekomst geboren zijn");
+                    throw new MemberException("De klant kan niet in de toekomst geboren zijn");
                 }
                 birthday = value;
             }
@@ -122,7 +122,7 @@ namespace FitnessBL.Model
                     && value != TypeKlant.Gold
                 )
                 {
-                    throw new KlantException(
+                    throw new MemberException(
                         "De klant moet van het type Bronze (0), Silver (1) of Gold (2) zijn!"
                     );
                 }
@@ -179,7 +179,7 @@ namespace FitnessBL.Model
 
             if (Interests.Contains(interesseStyled))
             {
-                throw new KlantException($"{interesse} zit al in de lijst met interesses!");
+                throw new MemberException($"{interesse} zit al in de lijst met interesses!");
             }
             else
             {
@@ -192,7 +192,7 @@ namespace FitnessBL.Model
             string interesseStyled = interesse.Trim().ToLower();
             if (!Interests.Contains(interesseStyled))
             {
-                throw new KlantException(
+                throw new MemberException(
                     $"{interesseStyled} kan niet worden verwijderd uit de lijst van interesses aangezien deze er niet inzit!"
                 );
             }
