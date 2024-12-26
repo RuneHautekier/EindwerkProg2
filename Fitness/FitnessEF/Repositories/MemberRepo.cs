@@ -29,6 +29,24 @@ namespace FitnessEF.Repositories
             ctx.ChangeTracker.Clear();
         }
 
+        public IEnumerable<Member> GetMembers()
+        {
+            try
+            {
+                List<MemberEF> membersEF = ctx.members.Select(x => x).ToList();
+                List<Member> members = new();
+                foreach (MemberEF mEF in membersEF)
+                {
+                    members.Add(MapMember.MapToDomain(mEF));
+                }
+                return members;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - GetMembers");
+            }
+        }
+
         public Member GetMemberId(int id)
         {
             try
@@ -85,6 +103,7 @@ namespace FitnessEF.Repositories
                 MemberEF m = MapMember.MapToDB(member);
                 ctx.members.Add(m);
                 SaveAndClear();
+                member.Member_id = m.member_id;
                 return member;
             }
             catch (Exception ex)
@@ -127,6 +146,20 @@ namespace FitnessEF.Repositories
             catch (Exception ex)
             {
                 throw new RepoException("MemberRepo - IsMemberID", ex);
+            }
+        }
+
+        public void DeleteMember(int id)
+        {
+            try
+            {
+                MemberEF memberEF = ctx.members.FirstOrDefault(x => x.member_id == id);
+                ctx.members.Remove(memberEF);
+                SaveAndClear();
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - DeleteRepo");
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using FitnessAPI.DTO;
 using FitnessBL.Enums;
+using FitnessBL.Exceptions;
 using FitnessBL.Model;
 using FitnessBL.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,22 @@ namespace FitnessAPI.Controllers
             this.memberService = memberService;
         }
 
+        [HttpGet("/LijstMembers")]
+        public ActionResult<IEnumerable<Member>> GetMembers()
+        {
+            try
+            {
+                IEnumerable<Member> members = memberService.GetMembers();
+
+                return Ok(members);
+            }
+            catch (Exception ex)
+            {
+                // Foutafhandeling met een 500 Internal Server Error
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [HttpGet("/MemberViaId/{id}")]
         public IActionResult GetMemberId(int id)
         {
@@ -24,6 +41,18 @@ namespace FitnessAPI.Controllers
             if (member == null)
             {
                 return NotFound($"Member met id {id} niet gevonden!");
+            }
+
+            return Ok(member);
+        }
+
+        [HttpGet("/MemberViaNaam/{voornaam}/{achternaam}")]
+        public IActionResult GetMemberNaam(string voornaam, string achternaam)
+        {
+            Member member = memberService.GetMemberNaam(voornaam, achternaam);
+            if (member == null)
+            {
+                return NotFound($"Member met naam {voornaam} {achternaam} niet gevonden!");
             }
 
             return Ok(member);
@@ -67,7 +96,8 @@ namespace FitnessAPI.Controllers
             [FromQuery] string? Voornaam = null,
             [FromQuery] string? Achternaam = null,
             [FromQuery] string? Email = null,
-            [FromQuery] string? Adres = null
+            [FromQuery] string? Adres = null,
+            [FromQuery] List<string> Interesses = null
         )
         {
             try
@@ -90,6 +120,8 @@ namespace FitnessAPI.Controllers
                     member.Birthday = GeboorteDatum;
                 if (typeKlant != null)
                     member.MemberType = typeKlant;
+                if (Interesses.Count() != 0)
+                    member.Interests = Interesses;
 
                 // Update het record in de database
                 memberService.UpdateMember(member);
@@ -99,6 +131,20 @@ namespace FitnessAPI.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Er is een fout opgetreden: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("/GebruikerVerwijderenViaId/{id}")]
+        public IActionResult DeleteGebruiker(int id)
+        {
+            try
+            {
+                memberService.DeleteMember(id);
+                return NoContent();
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }
