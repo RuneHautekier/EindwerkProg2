@@ -9,6 +9,14 @@ namespace FitnessBL.Interfaces
 {
     public interface IEquipmentRepo
     {
+        IEnumerable<Equipment> GetEquipment();
+
         Equipment GetEquipmentId(int id);
+        IEnumerable<Equipment> GetEquipmentsType(string type);
+        Equipment AddEquipment(Equipment equipment);
+        bool IsEquipmentId(int id);
+
+        void UpdateEquipment(Equipment equipment);
+        void DeleteEquipment(int id);
     }
 }

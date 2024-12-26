@@ -123,7 +123,7 @@ namespace FitnessBL.Model
                 )
                 {
                     throw new KlantException(
-                        "De klant moet van het type Bronze, Silver of Gold zijn!"
+                        "De klant moet van het type Bronze (0), Silver (1) of Gold (2) zijn!"
                     );
                 }
                 else

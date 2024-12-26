@@ -1,4 +1,7 @@
-﻿using FitnessBL.Model;
+﻿using FitnessAPI.DTO;
+using FitnessBL.Enums;
+using FitnessBL.Exceptions;
+using FitnessBL.Model;
 using FitnessBL.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,16 +18,113 @@ namespace FitnessAPI.Controllers
             this.equipmentService = equipmentService;
         }
 
+        [HttpGet("/LijstEquipment")]
+        public ActionResult<IEnumerable<Equipment>> GetEquipment()
+        {
+            try
+            {
+                IEnumerable<Equipment> equipments = equipmentService.GetEquipment();
+
+                return Ok(equipments);
+            }
+            catch (Exception ex)
+            {
+                // Foutafhandeling met een 500 Internal Server Error
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [HttpGet("/EquipmentViaId/{id}")]
         public IActionResult GetEquipmentId(int id)
         {
-            Equipment equipment = equipmentService.GetEquipmentId(id);
-            if (equipment == null)
+            try
             {
-                return NotFound($"equipment met id {id} niet gevonden!");
-            }
+                Equipment equipment = equipmentService.GetEquipmentId(id);
 
-            return Ok(equipment);
+                return Ok(equipment);
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("/EquipmentsViaType/{type}")]
+        public IActionResult GetEquipmentType(string type)
+        {
+            try
+            {
+                IEnumerable<Equipment> equipments = equipmentService.GetEquipmentsType(type);
+                return Ok(equipments);
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("/EquipmentToevoegen")]
+        public IActionResult AddEquipment([FromBody] EquipmentAanmakenDTO equipmentDTO)
+        {
+            try
+            {
+                Equipment equipment = new Equipment(equipmentDTO.device_type);
+                equipmentService.AddEquipment(equipment);
+
+                return CreatedAtAction(
+                    nameof(GetEquipmentId), // Specify the action name of the "Get" endpoint
+                    new { id = equipment.Equipment_id }, // Parameter voor de Get eindpoint
+                    equipment // Return the created gebruiker object
+                );
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPatch("/EquipmentAanpassen/{id}")]
+        public IActionResult UpdateEquipment(int id, [FromQuery] string device_type)
+        {
+            try
+            {
+                Equipment equipment = equipmentService.GetEquipmentId(id);
+                equipment.Device_type = device_type;
+                // Update het record in de database
+                equipmentService.UpdateEquipment(equipment);
+
+                return CreatedAtAction(
+                    nameof(GetEquipmentId), // Specify the action name of the "Get" endpoint
+                    new { id = equipment.Equipment_id }, // Parameter voor de Get eindpoint
+                    equipment // Return the created gebruiker object
+                ); // 204 No Content
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Er is een fout opgetreden: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("/EquipmentVerwijderenViaId/{id}")]
+        public IActionResult DeleteEquipment(int id)
+        {
+            try
+            {
+                equipmentService.DeleteEquipment(id);
+                return Ok($"Equipment met id {id} is succesvol verwijderd!");
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

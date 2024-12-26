@@ -32,60 +32,64 @@ namespace FitnessBL.Services
 
         public Member GetMemberId(int id)
         {
-            try
-            {
-                return memberRepo.GetMemberId(id);
-            }
-            catch (Exception ex)
-            {
-                throw new ServiceException("MemberService - GetMemberId");
-            }
+            Member member = memberRepo.GetMemberId(id);
+            if (member == null)
+                throw new ServiceException(
+                    "MemberService - GetMemberId - Er is geen member met dit id!"
+                );
+            return member;
         }
 
         public Member GetMemberNaam(string vn, string ln)
         {
-            try
-            {
-                return memberRepo.GetMemberNaam(vn, ln);
-            }
-            catch (Exception ex)
-            {
-                throw new ServiceException("GetMemberNaam", ex);
-            }
+            Member member = memberRepo.GetMemberNaam(vn, ln);
+            if (member == null)
+                throw new ServiceException(
+                    "MemberService - GetMemberNaam - Er is geen member met deze naam!"
+                );
+            return member;
         }
 
         public Member AddMember(Member member)
         {
             if (member == null)
-                throw new ServiceException("AddMember - Member is null");
+                throw new ServiceException("MemberService - AddMember - Member is null");
             if (memberRepo.IsMemberName(member.FirstName, member.LastName))
-                throw new ServiceException("AddMember - Member bestaat al (zelfde naam)");
+                throw new ServiceException(
+                    "MemberService - AddMember - Member bestaat al (zelfde naam)"
+                );
+            if (memberRepo.IsMemberEmail(member.Email))
+                throw new ServiceException(
+                    "MemberService - AddMember - Dit email is al in gebruik!"
+                );
+            if (member.Birthday > DateTime.Now)
+                throw new ServiceException(
+                    "MemberService - AddMember - Je kan niet in de toekomst geboren zijn!"
+                );
             memberRepo.AddMember(member);
             return member;
         }
 
         public Member UpdateMember(Member member)
         {
-            try
-            {
-                if (member == null)
-                    throw new ServiceException("UpdateMember - member is null");
-                if (!memberRepo.IsMemberId(member.Member_id))
-                    throw new ServiceException("UpdateMember - Member bestaat niet op id");
+            if (member == null)
+                throw new ServiceException("MemberService - UpdateMember - member is null");
+            if (!memberRepo.IsMemberId(member.Member_id))
+                throw new ServiceException(
+                    "MemberService - UpdateMember - Member bestaat niet op id"
+                );
 
-                memberRepo.UpdateMember(member);
-                return member;
-            }
-            catch (Exception ex)
-            {
-                throw new ServiceException("UpdateMember", ex);
-            }
+            memberRepo.UpdateMember(member);
+            return member;
         }
 
         public void DeleteMember(int id)
         {
             if (!memberRepo.IsMemberId(id))
-                throw new ServiceException("MemberService - member bestaat niet op id");
+                throw new ServiceException(
+                    "MemberService - DeleteMember - member bestaat niet op id"
+                );
+
             memberRepo.DeleteMember(id);
         }
     }

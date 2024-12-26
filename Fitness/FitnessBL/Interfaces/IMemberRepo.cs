@@ -13,8 +13,9 @@ namespace FitnessBL.Interfaces
         Member GetMemberId(int id);
         Member AddMember(Member member);
         bool IsMemberName(string vn, string ln);
-        void UpdateMember(Member member);
         bool IsMemberId(int id);
+        bool IsMemberEmail(string email);
+        void UpdateMember(Member member);
         Member GetMemberNaam(string vn, string ln);
         void DeleteMember(int id);
     }

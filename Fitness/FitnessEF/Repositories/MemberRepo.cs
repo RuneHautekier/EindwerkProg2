@@ -124,6 +124,30 @@ namespace FitnessEF.Repositories
             }
         }
 
+        public bool IsMemberId(int id)
+        {
+            try
+            {
+                return ctx.members.Any(x => x.member_id == id);
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - IsMemberID", ex);
+            }
+        }
+
+        public bool IsMemberEmail(string email)
+        {
+            try
+            {
+                return ctx.members.Any(x => x.email == email);
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - IsMemberName");
+            }
+        }
+
         public void UpdateMember(Member member)
         {
             try
@@ -134,18 +158,6 @@ namespace FitnessEF.Repositories
             catch (Exception ex)
             {
                 throw new RepoException("MemberRepo - UpdateMember");
-            }
-        }
-
-        public bool IsMemberId(int id)
-        {
-            try
-            {
-                return ctx.members.Any(x => x.member_id == id);
-            }
-            catch (Exception ex)
-            {
-                throw new RepoException("MemberRepo - IsMemberID", ex);
             }
         }
 

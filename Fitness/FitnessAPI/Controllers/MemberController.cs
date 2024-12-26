@@ -37,25 +37,29 @@ namespace FitnessAPI.Controllers
         [HttpGet("/MemberViaId/{id}")]
         public IActionResult GetMemberId(int id)
         {
-            Member member = memberService.GetMemberId(id);
-            if (member == null)
+            try
             {
-                return NotFound($"Member met id {id} niet gevonden!");
+                Member member = memberService.GetMemberId(id);
+                return Ok(member);
             }
-
-            return Ok(member);
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("/MemberViaNaam/{voornaam}/{achternaam}")]
         public IActionResult GetMemberNaam(string voornaam, string achternaam)
         {
-            Member member = memberService.GetMemberNaam(voornaam, achternaam);
-            if (member == null)
+            try
             {
-                return NotFound($"Member met naam {voornaam} {achternaam} niet gevonden!");
+                Member member = memberService.GetMemberNaam(voornaam, achternaam);
+                return Ok(member);
             }
-
-            return Ok(member);
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("/MemberToevoegen")]
@@ -81,9 +85,13 @@ namespace FitnessAPI.Controllers
                     member // Return the created gebruiker object
                 );
             }
-            catch (Exception ex)
+            catch (KlantException ex)
             {
-                return StatusCode(500, ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 
@@ -104,8 +112,6 @@ namespace FitnessAPI.Controllers
             {
                 // Haal de gebruiker op uit de database
                 Member member = memberService.GetMemberNaam(voornaam, achternaam);
-                if (member == null)
-                    return NotFound($"Gebruiker met naam {voornaam} {achternaam} niet gevonden.");
 
                 // Pas alleen de velden aan die zijn meegegeven (niet null)
                 if (!string.IsNullOrEmpty(Voornaam))
@@ -120,27 +126,31 @@ namespace FitnessAPI.Controllers
                     member.Birthday = GeboorteDatum;
                 if (typeKlant != null)
                     member.MemberType = typeKlant;
-                if (Interesses.Count() != 0)
+                if (Interesses.Count() != 0 || Interesses != null)
                     member.Interests = Interesses;
 
                 // Update het record in de database
                 memberService.UpdateMember(member);
 
-                return NoContent(); // 204 No Content
+                return CreatedAtAction(
+                    nameof(GetMemberId), // Specify the action name of the "Get" endpoint
+                    new { id = member.Member_id }, // Parameter voor de Get eindpoint
+                    member // Return the created gebruiker object
+                );
             }
-            catch (Exception ex)
+            catch (ServiceException ex)
             {
-                return StatusCode(500, $"Er is een fout opgetreden: {ex.Message}");
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpDelete("/GebruikerVerwijderenViaId/{id}")]
-        public IActionResult DeleteGebruiker(int id)
+        [HttpDelete("/MemberVerwijderenViaId/{id}")]
+        public IActionResult DeleteMember(int id)
         {
             try
             {
                 memberService.DeleteMember(id);
-                return NoContent();
+                return Ok("De member is succesvol verwijderd!");
             }
             catch (ServiceException ex)
             {

@@ -22,5 +22,17 @@ namespace FitnessEF.Mappers
                 throw new MapException("MapEquipment - MapToDomain", ex);
             }
         }
+
+        public static EquipmentEF MapToDB(Equipment equipment)
+        {
+            try
+            {
+                return new EquipmentEF(equipment.Equipment_id, equipment.Device_type);
+            }
+            catch (Exception ex)
+            {
+                throw new MapException("MapEquipment - MapToDB", ex);
+            }
+        }
     }
 }
