@@ -17,7 +17,7 @@ namespace FitnessBL.Model
             get { return device_type; }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
+                if (string.IsNullOrWhiteSpace(value) || value.Equals("string"))
                 {
                     throw new EquipmentException("Het toestel moet een beschrijving hebben!");
                 }

@@ -64,7 +64,7 @@ namespace FitnessBL.Services
                 throw new ServiceException(
                     "EquipmentService - UpdateEquipment - equipment is null"
                 );
-            if (!equipmentRepo.IsEquipmentId(equipment.Equipment_id))
+            if (!equipmentRepo.IsEquipmentId(equipment))
                 throw new ServiceException(
                     "EquipmentService - UpdateEquipment - equipment bestaat niet op id"
                 );
@@ -76,13 +76,39 @@ namespace FitnessBL.Services
             return equipment;
         }
 
-        public void DeleteEquipment(int id)
+        public void DeleteEquipment(Equipment equipment)
         {
-            if (!equipmentRepo.IsEquipmentId(id))
+            if (!equipmentRepo.IsEquipmentId(equipment))
                 throw new ServiceException(
                     "EquipmentService - DeleteEquipment - equipment bestaat niet op id"
                 );
-            equipmentRepo.DeleteEquipment(id);
+            equipmentRepo.DeleteEquipment(equipment);
+        }
+
+        public void EquipmentPlaatsOnderhoud(Equipment equipment)
+        {
+            if (!equipmentRepo.IsEquipmentId(equipment))
+                throw new ServiceException(
+                    "EquipmentService - EquipmentPlaatsOnderhoud - equipment bestaat niet op id"
+                );
+            if (equipmentRepo.EquipmentInOnderhoud(equipment))
+                throw new ServiceException(
+                    "EquipmentService - EquipmentPlaatsOnderhoud - Equipment zit al in onderhoud!"
+                );
+            equipmentRepo.EquipmentPlaatsOnderhoud(equipment);
+        }
+
+        public void EquipmentVerwijderOnderhoud(Equipment equipment)
+        {
+            if (!equipmentRepo.IsEquipmentId(equipment))
+                throw new ServiceException(
+                    "EquipmentService - EquipmentPlaatsOnderhoud - equipment bestaat niet op id"
+                );
+            if (!equipmentRepo.EquipmentInOnderhoud(equipment))
+                throw new ServiceException(
+                    "EquipmentService - EquipmentPlaatsOnderhoud - Equipment zit niet in onderhoud!"
+                );
+            equipmentRepo.EquipmentVerwijderOnderhoud(equipment);
         }
     }
 }

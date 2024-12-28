@@ -28,7 +28,7 @@ namespace ConsoleAppFitness
             foreach (var tijdslot in tijdsloten)
             {
                 Console.WriteLine(
-                    $"Id: {tijdslot.time_slot_id}, Start: {tijdslot.start_time}, End: {tijdslot.end_time}, Part of Day: {tijdslot.part_of_day}"
+                    $"Id: {tijdslot.Time_slot_id}, Start: {tijdslot.Start_time}, End: {tijdslot.End_time}, Part of Day: {tijdslot.Part_of_day}"
                 );
             }
         }

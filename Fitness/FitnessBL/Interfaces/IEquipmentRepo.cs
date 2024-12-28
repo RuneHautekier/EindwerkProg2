@@ -14,9 +14,12 @@ namespace FitnessBL.Interfaces
         Equipment GetEquipmentId(int id);
         IEnumerable<Equipment> GetEquipmentsType(string type);
         Equipment AddEquipment(Equipment equipment);
-        bool IsEquipmentId(int id);
+        bool IsEquipmentId(Equipment equipment);
 
         void UpdateEquipment(Equipment equipment);
-        void DeleteEquipment(int id);
+        void DeleteEquipment(Equipment equipment);
+        void EquipmentPlaatsOnderhoud(Equipment equipment);
+        void EquipmentVerwijderOnderhoud(Equipment equipment);
+        bool EquipmentInOnderhoud(Equipment equipment);
     }
 }

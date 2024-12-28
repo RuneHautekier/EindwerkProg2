@@ -20,9 +20,9 @@ namespace FitnessBL.Model
             get { return firstName; }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
+                if (string.IsNullOrWhiteSpace(value) || value.Equals("string"))
                 {
-                    throw new MemberException("De klant moet een firstName hebben!");
+                    throw new MemberException("De member moet een firstName hebben!");
                 }
                 else
                 {
@@ -38,9 +38,9 @@ namespace FitnessBL.Model
             get { return lastName; }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
+                if (string.IsNullOrWhiteSpace(value) || value.Equals("string"))
                 {
-                    throw new MemberException("De klant moet een lastName hebben!");
+                    throw new MemberException("De member moet een lastName hebben!");
                 }
                 else
                 {
@@ -56,9 +56,9 @@ namespace FitnessBL.Model
             get { return email; }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
+                if (string.IsNullOrWhiteSpace(value) || value.Equals("string"))
                 {
-                    throw new MemberException("De klant moet een emailadres hebben!");
+                    throw new MemberException("De member moet een emailadres hebben!");
                 }
                 else
                 {
@@ -81,9 +81,9 @@ namespace FitnessBL.Model
             get { return address; }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
+                if (string.IsNullOrWhiteSpace(value) || value.Equals("string"))
                 {
-                    throw new MemberException("De klant moet een verblijfsplaats hebben!");
+                    throw new MemberException("De member moet een address hebben!");
                 }
                 else
                 {
@@ -101,7 +101,7 @@ namespace FitnessBL.Model
             {
                 if (value > DateTime.Now)
                 {
-                    throw new MemberException("De klant kan niet in de toekomst geboren zijn");
+                    throw new MemberException("De member kan niet in de toekomst geboren zijn");
                 }
                 birthday = value;
             }

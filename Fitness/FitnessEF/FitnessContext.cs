@@ -22,6 +22,8 @@ namespace FitnessEF
 
         public DbSet<CyclingSessionEF> cyclingsession { get; set; }
 
+        public DbSet<EquipmentOnderhoudEF> equipmentOnderhoud { get; set; }
+
         private string connectionString;
 
         public FitnessContext(string connectionString)
@@ -64,6 +66,13 @@ namespace FitnessEF
                     r.time_slot_id,
                     r.equipment_id
                 });
+
+            modelBuilder
+                .Entity<EquipmentOnderhoudEF>()
+                .HasOne(eo => eo.Equipment) // Elke onderhoudsbeurt heeft één apparaat
+                .WithOne() // Elk apparaat kan maximaal één onderhoudsbeurt hebben
+                .HasForeignKey<EquipmentOnderhoudEF>(eo => eo.equipment_id) // Buitenlandse sleutel naar EquipmentEF
+                .OnDelete(DeleteBehavior.Cascade); // Verwijder de onderhoudsbeurt als het bijbehorende apparaat wordt verwijderd
 
             base.OnModelCreating(modelBuilder);
         }

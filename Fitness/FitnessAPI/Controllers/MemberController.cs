@@ -65,14 +65,22 @@ namespace FitnessAPI.Controllers
         {
             try
             {
+                List<string> intr = new List<string>();
+                if (memberDTO.Intrests.Count >= 1 && !memberDTO.Intrests.Contains("string"))
+                {
+                    foreach (string str in memberDTO.Intrests)
+                    {
+                        intr.Add(str);
+                    }
+                }
                 Member member = new Member(
-                    memberDTO.Voornaam,
-                    memberDTO.Achternaam,
+                    memberDTO.FirstName,
+                    memberDTO.LastName,
                     memberDTO.Email,
-                    memberDTO.Adres,
-                    memberDTO.Geboortedatum,
-                    memberDTO.Interesses,
-                    memberDTO.TypeKlant
+                    memberDTO.Address,
+                    memberDTO.Birthday,
+                    intr,
+                    memberDTO.TypeMember
                 );
 
                 memberService.AddMember(member);
@@ -147,7 +155,8 @@ namespace FitnessAPI.Controllers
         {
             try
             {
-                memberService.DeleteMember(id);
+                Member member = memberService.GetMemberId(id);
+                memberService.DeleteMember(member);
                 return Ok("De member is succesvol verwijderd!");
             }
             catch (ServiceException ex)

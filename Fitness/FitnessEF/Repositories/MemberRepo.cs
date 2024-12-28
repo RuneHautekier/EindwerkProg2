@@ -92,7 +92,7 @@ namespace FitnessEF.Repositories
             }
             catch (Exception ex)
             {
-                throw new RepoException("MemberRepo - GetMemberId", ex);
+                throw new RepoException("MemberRepo - GetMemberNaam", ex);
             }
         }
 
@@ -112,11 +112,13 @@ namespace FitnessEF.Repositories
             }
         }
 
-        public bool IsMemberName(string vn, string ln)
+        public bool IsMemberName(Member member)
         {
             try
             {
-                return ctx.members.Any(x => x.first_name == vn && x.last_name == ln);
+                return ctx.members.Any(x =>
+                    x.first_name == member.FirstName && x.last_name == member.LastName
+                );
             }
             catch (Exception ex)
             {
@@ -124,11 +126,11 @@ namespace FitnessEF.Repositories
             }
         }
 
-        public bool IsMemberId(int id)
+        public bool IsMemberId(Member member)
         {
             try
             {
-                return ctx.members.Any(x => x.member_id == id);
+                return ctx.members.Any(x => x.member_id == member.Member_id);
             }
             catch (Exception ex)
             {
@@ -136,15 +138,15 @@ namespace FitnessEF.Repositories
             }
         }
 
-        public bool IsMemberEmail(string email)
+        public bool IsMemberEmail(Member member)
         {
             try
             {
-                return ctx.members.Any(x => x.email == email);
+                return ctx.members.Any(x => x.email == member.Email);
             }
             catch (Exception ex)
             {
-                throw new RepoException("MemberRepo - IsMemberName");
+                throw new RepoException("MemberRepo - IsMemberEmail");
             }
         }
 
@@ -161,11 +163,13 @@ namespace FitnessEF.Repositories
             }
         }
 
-        public void DeleteMember(int id)
+        public void DeleteMember(Member member)
         {
             try
             {
-                MemberEF memberEF = ctx.members.FirstOrDefault(x => x.member_id == id);
+                MemberEF memberEF = ctx.members.FirstOrDefault(x =>
+                    x.member_id == member.Member_id
+                );
                 ctx.members.Remove(memberEF);
                 SaveAndClear();
             }

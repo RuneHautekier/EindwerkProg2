@@ -10,7 +10,22 @@ namespace FitnessBL.Model
 {
     public class Program
     {
-        public string ProgramCode { get; set; }
+        private string programCode;
+        public string ProgramCode
+        {
+            get { return programCode; }
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value) || value.Equals("string"))
+                {
+                    throw new ProgramException("Program moet een code hebben!");
+                }
+                else
+                {
+                    programCode = value;
+                }
+            }
+        }
 
         private string name;
 
@@ -19,9 +34,9 @@ namespace FitnessBL.Model
             get { return name; }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
+                if (string.IsNullOrWhiteSpace(value) || value.Equals("string"))
                 {
-                    throw new ProgramException("Het programma moet een naam hebben!");
+                    throw new ProgramException("Program moet een naam hebben!");
                 }
                 else
                 {
@@ -37,9 +52,9 @@ namespace FitnessBL.Model
             get { return target; }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
+                if (string.IsNullOrWhiteSpace(value) || value.Equals("string"))
                 {
-                    throw new ProgramException("Het doelpubliek moet ingevuld zijn!");
+                    throw new ProgramException("Target moet ingevuld zijn!");
                 }
                 else
                 {
@@ -59,7 +74,7 @@ namespace FitnessBL.Model
             {
                 if (value <= 0)
                 {
-                    throw new ProgramException("Het maximaal aantal leden moet meer dan 0 zijn!");
+                    throw new ProgramException("Het maximaal aantal members moet meer dan 0 zijn!");
                 }
                 else
                 {
@@ -68,6 +83,23 @@ namespace FitnessBL.Model
             }
         }
         public Dictionary<int, Member> Members = new Dictionary<int, Member>();
+
+        public Program(
+            string programCode,
+            string name,
+            string target,
+            DateTime startdate,
+            int max_members
+        )
+        {
+            ProgramCode = programCode;
+            Name = name;
+            Target = target;
+            Startdate = startdate;
+            Max_members = max_members;
+        }
+
+        public Program() { }
 
         public Program(
             string naam,

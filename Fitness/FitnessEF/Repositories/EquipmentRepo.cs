@@ -106,11 +106,11 @@ namespace FitnessEF.Repositories
             }
         }
 
-        public bool IsEquipmentId(int id)
+        public bool IsEquipmentId(Equipment equipment)
         {
             try
             {
-                return ctx.equipment.Any(x => x.equipment_id == id);
+                return ctx.equipment.Any(x => x.equipment_id == equipment.Equipment_id);
             }
             catch (Exception ex)
             {
@@ -131,17 +131,63 @@ namespace FitnessEF.Repositories
             }
         }
 
-        public void DeleteEquipment(int id)
+        public void DeleteEquipment(Equipment equipment)
         {
             try
             {
-                EquipmentEF equipmentEF = ctx.equipment.FirstOrDefault(x => x.equipment_id == id);
+                EquipmentEF equipmentEF = ctx.equipment.FirstOrDefault(x =>
+                    x.equipment_id == equipment.Equipment_id
+                );
                 ctx.equipment.Remove(equipmentEF);
                 SaveAndClear();
             }
             catch (Exception ex)
             {
                 throw new RepoException("EquipmentRepo - DeleteEquipment");
+            }
+        }
+
+        public void EquipmentPlaatsOnderhoud(Equipment equipment)
+        {
+            try
+            {
+                EquipmentOnderhoudEF eoEF = new EquipmentOnderhoudEF(equipment.Equipment_id);
+                ctx.equipmentOnderhoud.Add(eoEF);
+                SaveAndClear();
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("EquipmentRepo - EquipmentPlaatsOnderhoud");
+            }
+        }
+
+        public void EquipmentVerwijderOnderhoud(Equipment equipment)
+        {
+            try
+            {
+                EquipmentOnderhoudEF eoEF = ctx
+                    .equipmentOnderhoud.Where(eo => eo.equipment_id == equipment.Equipment_id)
+                    .AsNoTracking()
+                    .FirstOrDefault();
+
+                ctx.equipmentOnderhoud.Remove(eoEF);
+                SaveAndClear();
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("EquipmentRepo - EquipmentVerwijderOnderhoud");
+            }
+        }
+
+        public bool EquipmentInOnderhoud(Equipment equipment)
+        {
+            try
+            {
+                return ctx.equipmentOnderhoud.Any(e => e.equipment_id == equipment.Equipment_id);
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("EquipmentRepo - EquipmentInOnderhoud");
             }
         }
     }

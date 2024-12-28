@@ -45,7 +45,8 @@ namespace FitnessEF.Model
             string name,
             string target,
             DateTime startdate,
-            int max_members
+            int max_members,
+            List<MemberEF> members
         )
         {
             this.programCode = programCode;
@@ -53,6 +54,7 @@ namespace FitnessEF.Model
             this.target = target;
             this.startdate = startdate;
             this.max_members = max_members;
+            Members = members;
         }
     }
 }

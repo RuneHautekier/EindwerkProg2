@@ -117,8 +117,51 @@ namespace FitnessAPI.Controllers
         {
             try
             {
-                equipmentService.DeleteEquipment(id);
+                Equipment equipment = equipmentService.GetEquipmentId(id);
+                equipmentService.DeleteEquipment(equipment);
                 return Ok($"Equipment met id {id} is succesvol verwijderd!");
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("/EquipmentInOnderhoudPlaatsen")]
+        public IActionResult EquipmentPlaatsOnderhoud(
+            [FromBody] EquipmentOnderhoudDTO equipmentOnderhoudDTO
+        )
+        {
+            try
+            {
+                Equipment equipment = equipmentService.GetEquipmentId(
+                    equipmentOnderhoudDTO.EquipmentId
+                );
+                equipmentService.EquipmentPlaatsOnderhoud(equipment);
+                return Ok(
+                    $"Equipment met id {equipment.Equipment_id} is succesvol in onderhoud geplaatst!"
+                );
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("/EquipmentUitOnderhoudVerwijderen")]
+        public IActionResult EquipmentVerwijderOnderhoud(
+            [FromBody] EquipmentOnderhoudDTO equipmentOnderhoudDTO
+        )
+        {
+            try
+            {
+                Equipment equipment = equipmentService.GetEquipmentId(
+                    equipmentOnderhoudDTO.EquipmentId
+                );
+                equipmentService.EquipmentVerwijderOnderhoud(equipment);
+                return Ok(
+                    $"Equipment met id {equipment.Equipment_id} is succesvol uit onderhoud verwijderd!"
+                );
             }
             catch (ServiceException ex)
             {

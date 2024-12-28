@@ -119,7 +119,7 @@ namespace FitnessBL.Model
             get { return trainingsType; }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
+                if (string.IsNullOrWhiteSpace(value) || value.Equals("string"))
                 {
                     throw new CyclingSessionException("Het trainingstype mag niet leeg zijn.");
                 }

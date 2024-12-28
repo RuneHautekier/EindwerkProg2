@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using FitnessBL.Exceptions;
 
 namespace FitnessBL.Model
 {
@@ -22,10 +23,10 @@ namespace FitnessBL.Model
             get { return date; }
             set
             {
-                if (value > DateTime.Now)
+                if (value == null || value > DateTime.Now)
                 {
-                    throw new ArgumentException(
-                        "De datum van de hardloopsessie kan niet in de toekomst liggen."
+                    throw new RunningSessionMainException(
+                        "De date van de hardloopsessie kan niet in de toekomst liggen."
                     );
                 }
                 date = value;
@@ -40,8 +41,8 @@ namespace FitnessBL.Model
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentException(
-                        "De duur van de hardloopsessie moet groter zijn dan 0."
+                    throw new RunningSessionMainException(
+                        "De duration van de RunningSession moet groter zijn dan 0."
                     );
                 }
                 duration = value;
@@ -54,9 +55,11 @@ namespace FitnessBL.Model
             get { return avg_speed; }
             set
             {
-                if (value < 0)
+                if (value <= 0)
                 {
-                    throw new ArgumentException("De gemiddelde snelheid kan niet negatief zijn.");
+                    throw new RunningSessionMainException(
+                        "De average speed kan niet 0 of negatief zijn!"
+                    );
                 }
                 avg_speed = value;
             }
@@ -70,7 +73,7 @@ namespace FitnessBL.Model
             {
                 if (value == null)
                 {
-                    throw new ArgumentException("De klant mag niet null zijn.");
+                    throw new RunningSessionMainException("Member mag niet null zijn.");
                 }
                 member = value;
             }

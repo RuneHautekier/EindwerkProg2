@@ -50,11 +50,11 @@ namespace FitnessBL.Services
         {
             if (member == null)
                 throw new ServiceException("MemberService - AddMember - Member is null");
-            if (memberRepo.IsMemberName(member.FirstName, member.LastName))
+            if (memberRepo.IsMemberName(member))
                 throw new ServiceException(
-                    "MemberService - AddMember - Member bestaat al (zelfde naam)"
+                    "MemberService - AddMember - Member bestaat al (zelfde naam)!"
                 );
-            if (memberRepo.IsMemberEmail(member.Email))
+            if (memberRepo.IsMemberEmail(member))
                 throw new ServiceException(
                     "MemberService - AddMember - Dit email is al in gebruik!"
                 );
@@ -69,24 +69,24 @@ namespace FitnessBL.Services
         public Member UpdateMember(Member member)
         {
             if (member == null)
-                throw new ServiceException("MemberService - UpdateMember - member is null");
-            if (!memberRepo.IsMemberId(member.Member_id))
+                throw new ServiceException("MemberService - UpdateMember - member is null!");
+            if (!memberRepo.IsMemberId(member))
                 throw new ServiceException(
-                    "MemberService - UpdateMember - Member bestaat niet op id"
+                    "MemberService - UpdateMember - Member bestaat niet met dit id!"
                 );
 
             memberRepo.UpdateMember(member);
             return member;
         }
 
-        public void DeleteMember(int id)
+        public void DeleteMember(Member member)
         {
-            if (!memberRepo.IsMemberId(id))
+            if (!memberRepo.IsMemberId(member))
                 throw new ServiceException(
-                    "MemberService - DeleteMember - member bestaat niet op id"
+                    "MemberService - DeleteMember - member bestaat niet met dit id!"
                 );
 
-            memberRepo.DeleteMember(id);
+            memberRepo.DeleteMember(member);
         }
     }
 }
