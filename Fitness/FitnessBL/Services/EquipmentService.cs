@@ -11,7 +11,7 @@ namespace FitnessBL.Services
 {
     public class EquipmentService
     {
-        private IEquipmentRepo equipmentRepo;
+        public IEquipmentRepo equipmentRepo;
 
         public EquipmentService(IEquipmentRepo equipmentRepo)
         {
@@ -36,16 +36,6 @@ namespace FitnessBL.Services
             return equipmentRepo.GetEquipmentId(id);
         }
 
-        public IEnumerable<Equipment> GetEquipmentsType(string type)
-        {
-            IEnumerable<Equipment> equipments = equipmentRepo.GetEquipmentsType(type);
-            if (equipments.Count() == 0)
-                throw new ServiceException(
-                    "EquipmentService - GetEqupimentType - Er is geen equipment van dit type!"
-                );
-            return equipments;
-        }
-
         public Equipment AddEquipment(Equipment equipment)
         {
             if (equipment == null)
@@ -58,26 +48,12 @@ namespace FitnessBL.Services
             return equipment;
         }
 
-        public Equipment UpdateEquipment(Equipment equipment)
+        public void DeleteEquipment(Equipment equipment)
         {
             if (equipment == null)
                 throw new ServiceException(
-                    "EquipmentService - UpdateEquipment - equipment is null"
+                    "EquipmentService - DeleteEquipment - equipment is null"
                 );
-            if (!equipmentRepo.IsEquipmentId(equipment))
-                throw new ServiceException(
-                    "EquipmentService - UpdateEquipment - equipment bestaat niet op id"
-                );
-            if (equipment.Device_type.Equals("string"))
-                throw new ServiceException(
-                    "EquipmentService - UpdateEquipment - Gelieve het type van het equipment in te vullen!"
-                );
-            equipmentRepo.UpdateEquipment(equipment);
-            return equipment;
-        }
-
-        public void DeleteEquipment(Equipment equipment)
-        {
             if (!equipmentRepo.IsEquipmentId(equipment))
                 throw new ServiceException(
                     "EquipmentService - DeleteEquipment - equipment bestaat niet op id"
@@ -87,6 +63,10 @@ namespace FitnessBL.Services
 
         public void EquipmentPlaatsOnderhoud(Equipment equipment)
         {
+            if (equipment == null)
+                throw new ServiceException(
+                    "EquipmentService - EquipmentPlaatsOnderhoud - equipment is null"
+                );
             if (!equipmentRepo.IsEquipmentId(equipment))
                 throw new ServiceException(
                     "EquipmentService - EquipmentPlaatsOnderhoud - equipment bestaat niet op id"
@@ -98,17 +78,53 @@ namespace FitnessBL.Services
             equipmentRepo.EquipmentPlaatsOnderhoud(equipment);
         }
 
-        public void EquipmentVerwijderOnderhoud(Equipment equipment)
+        public void EquipmentVerwijderOnderhoud(Equipment equipment, DateTime StartDate)
         {
+            if (equipment == null)
+                throw new ServiceException(
+                    "EquipmentService - EquipmentVerwijderOnderhoud - equipment is null"
+                );
             if (!equipmentRepo.IsEquipmentId(equipment))
                 throw new ServiceException(
-                    "EquipmentService - EquipmentPlaatsOnderhoud - equipment bestaat niet op id"
+                    "EquipmentService - EquipmentVerwijderOnderhoud - equipment bestaat niet op id"
                 );
             if (!equipmentRepo.EquipmentInOnderhoud(equipment))
                 throw new ServiceException(
-                    "EquipmentService - EquipmentPlaatsOnderhoud - Equipment zit niet in onderhoud!"
+                    "EquipmentService - EquipmentVerwijderOnderhoud - Equipment moet zit niet in onderhoud!"
                 );
             equipmentRepo.EquipmentVerwijderOnderhoud(equipment);
+        }
+
+        public bool EquipmentInOnderhoud(Equipment equipment)
+        {
+            if (equipment == null)
+                throw new ServiceException(
+                    "EquipmentService - EquipmentInOnderhoud - equipment is null"
+                );
+
+            if (!equipmentRepo.IsEquipmentId(equipment))
+                throw new ServiceException(
+                    "EquipmentService - EquipmentInOnderhoud - equipment bestaat niet op id"
+                );
+            return equipmentRepo.EquipmentInOnderhoud(equipment);
+        }
+
+        public Equipment GetAvailableEquipment(DateTime date, Time_slot timeSlot, string DeviceType)
+        {
+            if (date < DateTime.Now)
+                throw new ServiceException(
+                    "EquipmentServie - GetAvailableEquipment - Date moet in de toekost liggen om te zien of dit equipment in de toekomst al gebruikt wordt!"
+                );
+            if (timeSlot == null)
+                throw new ServiceException(
+                    "EquipmentServie - GetAvailableEquipment - TimeSlot is null!"
+                );
+            if (DeviceType == null)
+                throw new ServiceException(
+                    "EquipmentServie - GetAvailableEquipment - DeviceType is null!"
+                );
+
+            return equipmentRepo.GetAvailableEquipment(date, timeSlot, DeviceType);
         }
     }
 }

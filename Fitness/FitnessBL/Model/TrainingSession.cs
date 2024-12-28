@@ -1,4 +1,5 @@
 ﻿using System;
+using FitnessBL.Exceptions;
 
 namespace FitnessBL.Model
 {
@@ -12,7 +13,7 @@ namespace FitnessBL.Model
             {
                 if (value > DateTime.Now)
                 {
-                    throw new Exception(
+                    throw new TrainingSessionException(
                         "De Date van de TrainingSession kan niet in de toekomst liggen."
                     );
                 }
@@ -28,7 +29,7 @@ namespace FitnessBL.Model
             {
                 if (value <= 0)
                 {
-                    throw new Exception(
+                    throw new TrainingSessionException(
                         "De Duration van de TrainingSession moet groter zijn dan 0."
                     );
                 }
@@ -44,7 +45,7 @@ namespace FitnessBL.Model
             {
                 if (value == null)
                 {
-                    throw new Exception("Member mag niet null zijn.");
+                    throw new TrainingSessionException("Member mag niet null zijn.");
                 }
                 member = value;
             }

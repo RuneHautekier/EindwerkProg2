@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FitnessBL.Model;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FitnessBL.Interfaces
 {
@@ -12,14 +13,14 @@ namespace FitnessBL.Interfaces
         IEnumerable<Equipment> GetEquipment();
 
         Equipment GetEquipmentId(int id);
-        IEnumerable<Equipment> GetEquipmentsType(string type);
         Equipment AddEquipment(Equipment equipment);
         bool IsEquipmentId(Equipment equipment);
-
-        void UpdateEquipment(Equipment equipment);
         void DeleteEquipment(Equipment equipment);
         void EquipmentPlaatsOnderhoud(Equipment equipment);
         void EquipmentVerwijderOnderhoud(Equipment equipment);
         bool EquipmentInOnderhoud(Equipment equipment);
+        Equipment GetAvailableEquipment(DateTime date, Time_slot timeSlot, string DeviceType);
+
+        IDbContextTransaction BeginTransaction();
     }
 }

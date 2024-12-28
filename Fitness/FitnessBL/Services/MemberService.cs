@@ -36,16 +36,6 @@ namespace FitnessBL.Services
             return member;
         }
 
-        public Member GetMemberNaam(string vn, string ln)
-        {
-            Member member = memberRepo.GetMemberNaam(vn, ln);
-            if (member == null)
-                throw new ServiceException(
-                    "MemberService - GetMemberNaam - Er is geen member met deze naam!"
-                );
-            return member;
-        }
-
         public Member AddMember(Member member)
         {
             if (member == null)
@@ -91,6 +81,11 @@ namespace FitnessBL.Services
 
         public IEnumerable<TrainingSession> GetTrainingSessionsMember(Member member)
         {
+            if (member == null)
+                throw new ServiceException(
+                    "MemberService - GetAantalGeboekteTijdsloten - member is null!"
+                );
+
             if (!memberRepo.IsMemberId(member))
                 throw new ServiceException(
                     "MemberService - GetTrainingSessionsMember - member bestaat niet met dit id!"
@@ -103,6 +98,21 @@ namespace FitnessBL.Services
                     "MemberService - GetTrainingSessionsMember - Deze member heeft nog geen TrainingSessions!"
                 );
             return TrainingSessions;
+        }
+
+        public int GetAantalGeboekteTijdsloten(Member member, DateTime date)
+        {
+            if (member == null)
+                throw new ServiceException(
+                    "MemberService - GetAantalGeboekteTijdsloten - member is null!"
+                );
+
+            if (!memberRepo.IsMemberId(member))
+                throw new ServiceException(
+                    "MemberService - GetAantalGeboekteTijdsloten - member bestaat niet met dit id!"
+                );
+
+            return memberRepo.GetAantalGeboekteTijdsloten(date, member);
         }
     }
 }

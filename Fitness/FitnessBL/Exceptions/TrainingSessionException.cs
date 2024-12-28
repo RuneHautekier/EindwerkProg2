@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace FitnessBL.Exceptions
 {
-    public class RunningSessionMainException : Exception
+    public class TrainingSessionException : Exception
     {
-        public RunningSessionMainException(string? message)
+        public TrainingSessionException(string? message)
             : base(message) { }
     }
 }

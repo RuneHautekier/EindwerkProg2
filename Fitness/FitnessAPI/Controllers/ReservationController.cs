@@ -3,7 +3,9 @@ using FitnessAPI.DTO;
 using FitnessBL.Exceptions;
 using FitnessBL.Model;
 using FitnessBL.Services;
+using FitnessEF.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FitnessAPI.Controllers
 {
@@ -67,8 +69,8 @@ namespace FitnessAPI.Controllers
 
                 return CreatedAtAction(
                     nameof(GetReservationID),
-                    new { id = reservation.Reservation_id }, // Route parameter
-                    reservation // Return DTO object
+                    new { id = reservation.Reservation_id },
+                    reservation
                 );
             }
             catch (ReservationException ex)
@@ -76,6 +78,10 @@ namespace FitnessAPI.Controllers
                 return BadRequest(ex.Message);
             }
             catch (Time_SlotException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (RepoException ex)
             {
                 return BadRequest(ex.Message);
             }

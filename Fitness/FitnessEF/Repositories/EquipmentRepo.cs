@@ -9,6 +9,7 @@ using FitnessEF.Exceptions;
 using FitnessEF.Mappers;
 using FitnessEF.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FitnessEF.Repositories
 {
@@ -66,27 +67,6 @@ namespace FitnessEF.Repositories
             catch (Exception ex)
             {
                 throw new RepoException("EquipmentRepo - GetEquipomentId", ex);
-            }
-        }
-
-        public IEnumerable<Equipment> GetEquipmentsType(string type)
-        {
-            try
-            {
-                List<EquipmentEF> equipmentEF = ctx
-                    .equipment.Where(x => x.device_type == type)
-                    .ToList();
-
-                List<Equipment> equipments = new();
-                foreach (EquipmentEF eEF in equipmentEF)
-                {
-                    equipments.Add(MapEquipment.MapToDomain(eEF));
-                }
-                return equipments;
-            }
-            catch (Exception ex)
-            {
-                throw new RepoException("EquipmentRepo - GetEquipmentsType");
             }
         }
 
@@ -189,6 +169,44 @@ namespace FitnessEF.Repositories
             {
                 throw new RepoException("EquipmentRepo - EquipmentInOnderhoud");
             }
+        }
+
+        public Equipment GetAvailableEquipment(DateTime date, Time_slot timeSlot, string DeviceType)
+        {
+            try
+            {
+                // Stap 1: Haal alle equipment op die mogelijk beschikbaar zijn op de opgegeven datum en tijdslot
+                EquipmentEF availableEquipment = ctx
+                    .equipment.Where(e =>
+                        e.device_type == DeviceType // Filter op het apparaat type
+                        && !ctx.reservation.Any(r =>
+                            r.equipment_id == e.equipment_id // Controleer of het equipment niet al gereserveerd is
+                            && r.date == date
+                            && r.time_slot_id == timeSlot.Time_slot_id
+                        )
+                    )
+                    .AsNoTracking()
+                    .FirstOrDefault(); // Haal het eerste (beschikbare) equipment op, of null als er geen is
+
+                if (availableEquipment == null)
+                {
+                    return null;
+                }
+
+                // Stap 2: Map het gevonden equipment naar het domeinmodel
+                Equipment equipment = MapEquipment.MapToDomain(availableEquipment);
+
+                return equipment;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("Error in GetAvailableEquipmentWithTransaction", ex);
+            }
+        }
+
+        public IDbContextTransaction BeginTransaction()
+        {
+            return ctx.Database.BeginTransaction();
         }
     }
 }

@@ -46,20 +46,6 @@ namespace FitnessAPI.Controllers
             }
         }
 
-        [HttpGet("/MemberViaNaam/{voornaam}/{achternaam}")]
-        public IActionResult GetMemberNaam(string voornaam, string achternaam)
-        {
-            try
-            {
-                Member member = memberService.GetMemberNaam(voornaam, achternaam);
-                return Ok(member);
-            }
-            catch (ServiceException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
         [HttpPost("/MemberToevoegen")]
         public IActionResult AddMember([FromBody] MemberAanmakenDTO memberDTO)
         {
@@ -101,10 +87,9 @@ namespace FitnessAPI.Controllers
             }
         }
 
-        [HttpPatch("/MemberAanpassen/{voornaam}/{achternaam}")]
+        [HttpPatch("/MemberAanpassen/{id}")]
         public IActionResult UpdateMember(
-            string voornaam,
-            string achternaam,
+            int id,
             [FromQuery] DateTime GeboorteDatum,
             [FromQuery] TypeKlant? typeKlant,
             [FromQuery] string? Voornaam = null,
@@ -117,7 +102,7 @@ namespace FitnessAPI.Controllers
             try
             {
                 // Haal de gebruiker op uit de database
-                Member member = memberService.GetMemberNaam(voornaam, achternaam);
+                Member member = memberService.GetMemberId(id);
 
                 // Pas alleen de velden aan die zijn meegegeven (niet null)
                 if (!string.IsNullOrEmpty(Voornaam))

@@ -10,6 +10,7 @@ namespace FitnessBL.Services
         private MemberService memberService;
         private EquipmentService equipmentService;
         private Time_slotService timeSlotService;
+        private IEquipmentRepo equipmentRepo;
 
         public ReservationService(
             IReservationRepo reservationRepo,
@@ -53,6 +54,7 @@ namespace FitnessBL.Services
             if (reservation == null)
                 throw new ServiceException("Reservation - Reservatie is null");
 
+            // Controleerd of een reservatie 1 of 2 tijdsloten heeft
             if (
                 reservation.TimeslotEquipment.Count() < 1
                 || reservation.TimeslotEquipment.Count() > 2
@@ -63,6 +65,7 @@ namespace FitnessBL.Services
                 );
             }
 
+            // Controleerd of de tijdsloten naast elkaar liggen
             if (reservation.TimeslotEquipment.Count() == 2)
             {
                 int verschil = Math.Abs(
@@ -75,9 +78,117 @@ namespace FitnessBL.Services
                 }
             }
 
+            // Controleerd of er een Equipment gebruikt wordt die in onderhoud zit
+            foreach (Equipment e in reservation.TimeslotEquipment.Values)
+            {
+                if (equipmentService.EquipmentInOnderhoud(e))
+                {
+                    throw new EquipmentException(
+                        $"Equipment met id {e.Equipment_id} zit momenteel in onderhoud!"
+                    );
+                }
+            }
+
+            //Controleerd
+
+            if (
+                memberService.GetAantalGeboekteTijdsloten(reservation.Member, reservation.Date) == 4
+            )
+            {
+                throw new MemberException(
+                    "Een member mag maximaal 4 TimeSlots op een dag reserveren"
+                );
+            }
+
+            // Controleerd of een gebruiker nog TimeSlots over heeft om een reservatie te reserveren
+            int geboekteTijdsloten = memberService.GetAantalGeboekteTijdsloten(
+                reservation.Member,
+                reservation.Date
+            );
+
+            if (geboekteTijdsloten + reservation.TimeslotEquipment.Count() > 4)
+            {
+                throw new MemberException(
+                    "Een member mag maximaal 4 TimeSlots per dag reserveren."
+                );
+            }
+
+            // Controleerd of de TimeSlots in dezelfde dagindeling vallen
+            bool sameSession = reservation.TimeslotEquipment.Keys.All(slot =>
+                slot.Part_of_day.Equals("morning")
+                || slot.Part_of_day.Equals("afternoon")
+                || slot.Part_of_day.Equals("evening")
+            );
+            if (!sameSession)
+            {
+                throw new Time_SlotException(
+                    "Alle Time_slots moeten in dezelfde dagindeling vallen."
+                );
+            }
+
+            //Controleerd of reservatie al bestaat.
             reservationRepo.CheckIfReservationExists(reservation);
             reservationRepo.AddReservation(reservation);
             return reservation;
+        }
+
+        public IEnumerable<Reservation> GetFutureReservationsForEquipment(int equipmentId)
+        {
+            IEnumerable<Reservation> reservations =
+                reservationRepo.GetFutureReservationsForEquipment(equipmentId);
+            if (!reservations.Any())
+            {
+                throw new ServiceException(
+                    "ReservationService - GetFutureReservationsForEquiment - Dit Equipment heeft geen reservaties in de toekosmt!"
+                );
+            }
+            return reservations;
+        }
+
+        public void UpdateReservationsWithNewEquipment(Equipment equipmentInOnderhoud)
+        {
+            // 1. Haal toekomstige reserveringen op waarin het equipment voorkomt
+            IEnumerable<Reservation> reservations =
+                reservationRepo.GetFutureReservationsForEquipment(
+                    equipmentInOnderhoud.Equipment_id
+                );
+
+            Equipment oudEquipment = equipmentService.GetEquipmentId(
+                equipmentInOnderhoud.Equipment_id
+            );
+            Equipment alternativeEquipment = null;
+
+            foreach (Reservation reservation in reservations)
+            {
+                foreach (Time_slot timeslot in reservation.TimeslotEquipment.Keys.ToList())
+                {
+                    if (
+                        reservation.TimeslotEquipment[timeslot].Equipment_id
+                        == equipmentInOnderhoud.Equipment_id
+                    )
+                    {
+                        // 2. Zoek een alternatief equipment dat beschikbaar is op dit tijdslot
+                        alternativeEquipment = equipmentService.GetAvailableEquipment(
+                            reservation.Date,
+                            timeslot,
+                            equipmentInOnderhoud.Device_type
+                        );
+
+                        if (alternativeEquipment == null)
+                        {
+                            throw new ServiceException(
+                                $"Geen beschikbaar alternatief equipment gevonden voor tijdslot {timeslot}!"
+                            );
+                        }
+
+                        // 3. Update het equipment in de reservering
+                        reservation.TimeslotEquipment[timeslot] = alternativeEquipment;
+                    }
+                }
+
+                // 4. Sla de gewijzigde reservering op
+                reservationRepo.UpdateReservationEquipment(reservation, oudEquipment);
+            }
         }
     }
 }

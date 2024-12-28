@@ -1,4 +1,6 @@
-﻿namespace FitnessBL.Model
+﻿using FitnessBL.Exceptions;
+
+namespace FitnessBL.Model
 {
     public class Runningsession_main : TrainingSession
     {
@@ -17,7 +19,9 @@
             {
                 if (value <= 0)
                 {
-                    throw new Exception("De gemiddelde snelheid moet groter zijn dan 0.");
+                    throw new TrainingSessionException(
+                        "De gemiddelde snelheid moet groter zijn dan 0."
+                    );
                 }
                 avg_speed = value;
             }

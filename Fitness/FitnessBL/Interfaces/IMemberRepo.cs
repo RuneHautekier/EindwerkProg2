@@ -12,12 +12,12 @@ namespace FitnessBL.Interfaces
         IEnumerable<Member> GetMembers();
         IEnumerable<TrainingSession> TrainingSessionsMember(Member member);
         Member GetMemberId(int id);
-        Member GetMemberNaam(string vn, string ln);
         Member AddMember(Member member);
         bool IsMemberName(Member member);
         bool IsMemberId(Member member);
         bool IsMemberEmail(Member member);
         void UpdateMember(Member member);
         void DeleteMember(Member member);
+        int GetAantalGeboekteTijdsloten(DateTime date, Member member);
     }
 }

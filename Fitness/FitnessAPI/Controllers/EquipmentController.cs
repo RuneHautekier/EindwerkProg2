@@ -12,25 +12,18 @@ namespace FitnessAPI.Controllers
     public class EquipmentController : ControllerBase
     {
         private EquipmentService equipmentService;
+        private ReservationService reservationService;
+        private MaintenanceService maintenanceService;
 
-        public EquipmentController(EquipmentService equipmentService)
+        public EquipmentController(
+            EquipmentService equipmentService,
+            ReservationService reservationService,
+            MaintenanceService maintenanceService
+        )
         {
             this.equipmentService = equipmentService;
-        }
-
-        [HttpGet("/LijstEquipment")]
-        public ActionResult<IEnumerable<Equipment>> GetEquipment()
-        {
-            try
-            {
-                IEnumerable<Equipment> equipments = equipmentService.GetEquipment();
-
-                return Ok(equipments);
-            }
-            catch (ServiceException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            this.reservationService = reservationService;
+            this.maintenanceService = maintenanceService;
         }
 
         [HttpGet("/EquipmentViaId/{id}")]
@@ -41,20 +34,6 @@ namespace FitnessAPI.Controllers
                 Equipment equipment = equipmentService.GetEquipmentId(id);
 
                 return Ok(equipment);
-            }
-            catch (ServiceException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpGet("/EquipmentsViaType/{type}")]
-        public IActionResult GetEquipmentType(string type)
-        {
-            try
-            {
-                IEnumerable<Equipment> equipments = equipmentService.GetEquipmentsType(type);
-                return Ok(equipments);
             }
             catch (ServiceException ex)
             {
@@ -86,32 +65,6 @@ namespace FitnessAPI.Controllers
             }
         }
 
-        [HttpPatch("/EquipmentAanpassen/{id}")]
-        public IActionResult UpdateEquipment(int id, [FromQuery] string device_type)
-        {
-            try
-            {
-                Equipment equipment = equipmentService.GetEquipmentId(id);
-                equipment.Device_type = device_type;
-                // Update het record in de database
-                equipmentService.UpdateEquipment(equipment);
-
-                return CreatedAtAction(
-                    nameof(GetEquipmentId), // Specify the action name of the "Get" endpoint
-                    new { id = equipment.Equipment_id }, // Parameter voor de Get eindpoint
-                    equipment // Return the created gebruiker object
-                ); // 204 No Content
-            }
-            catch (ServiceException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Er is een fout opgetreden: {ex.Message}");
-            }
-        }
-
         [HttpDelete("/EquipmentVerwijderenViaId/{id}")]
         public IActionResult DeleteEquipment(int id)
         {
@@ -137,9 +90,9 @@ namespace FitnessAPI.Controllers
                 Equipment equipment = equipmentService.GetEquipmentId(
                     equipmentOnderhoudDTO.EquipmentId
                 );
-                equipmentService.EquipmentPlaatsOnderhoud(equipment);
+                maintenanceService.PlaatsEquipmentOnderhoudMetReserveringUpdate(equipment);
                 return Ok(
-                    $"Equipment met id {equipment.Equipment_id} is succesvol in onderhoud geplaatst!"
+                    $"Equipment met id {equipmentOnderhoudDTO.EquipmentId} is succesvol in onderhoud geplaatst!"
                 );
             }
             catch (ServiceException ex)
@@ -158,7 +111,7 @@ namespace FitnessAPI.Controllers
                 Equipment equipment = equipmentService.GetEquipmentId(
                     equipmentOnderhoudDTO.EquipmentId
                 );
-                equipmentService.EquipmentVerwijderOnderhoud(equipment);
+                equipmentService.EquipmentVerwijderOnderhoud(equipment, DateTime.Now);
                 return Ok(
                     $"Equipment met id {equipment.Equipment_id} is succesvol uit onderhoud verwijderd!"
                 );

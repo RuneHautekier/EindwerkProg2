@@ -1,4 +1,6 @@
-﻿namespace FitnessBL.Model
+﻿using FitnessBL.Exceptions;
+
+namespace FitnessBL.Model
 {
     public class Cyclingsession : TrainingSession
     {
@@ -17,7 +19,9 @@
             {
                 if (value < 0)
                 {
-                    throw new Exception("Het AverageWattage kan niet negatief zijn.");
+                    throw new TrainingSessionException(
+                        "Het AverageWattage kan niet negatief zijn."
+                    );
                 }
                 avg_watt = value;
             }
@@ -31,7 +35,7 @@
             {
                 if (value < 0 || value < avg_watt)
                 {
-                    throw new Exception(
+                    throw new TrainingSessionException(
                         "Het MaxWattage kan niet lager zijn dan het gemiddelde watt of negatief."
                     );
                 }
@@ -47,7 +51,7 @@
             {
                 if (value < 0)
                 {
-                    throw new Exception("De AverageCadence kan niet negatief zijn.");
+                    throw new TrainingSessionException("De AverageCadence kan niet negatief zijn.");
                 }
                 avg_cadence = value;
             }
@@ -61,7 +65,7 @@
             {
                 if (value < 0 || value < avg_cadence)
                 {
-                    throw new Exception(
+                    throw new TrainingSessionException(
                         "De MaxCadance kan niet lager zijn dan de gemiddelde cadans of negatief."
                     );
                 }
@@ -77,7 +81,7 @@
             {
                 if (string.IsNullOrWhiteSpace(value) || value.Equals("string"))
                 {
-                    throw new Exception("Het trainingstype mag niet leeg zijn.");
+                    throw new TrainingSessionException("Het trainingstype mag niet leeg zijn.");
                 }
                 trainingsType = value;
             }

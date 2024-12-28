@@ -71,31 +71,6 @@ namespace FitnessEF.Repositories
             }
         }
 
-        public Member GetMemberNaam(string vn, string ln)
-        {
-            try
-            {
-                MemberEF memberEF = ctx
-                    .members.Where(x => x.first_name == vn)
-                    .Where(x => x.last_name == ln)
-                    .AsNoTracking()
-                    .FirstOrDefault();
-
-                if (memberEF == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return MapMember.MapToDomain(memberEF);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new RepoException("MemberRepo - GetMemberNaam", ex);
-            }
-        }
-
         public Member AddMember(Member member)
         {
             try
@@ -230,6 +205,22 @@ namespace FitnessEF.Repositories
             catch (Exception ex)
             {
                 throw new RepoException("MemberRepo - TrainingSessionsMember");
+            }
+        }
+
+        public int GetAantalGeboekteTijdsloten(DateTime date, Member member)
+        {
+            try
+            {
+                int aantal = ctx.reservation.Count(r =>
+                    r.member_id == member.Member_id && r.date.Date == date.Date
+                );
+
+                return aantal;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - GetAantalGeboekteTijdsloten");
             }
         }
     }

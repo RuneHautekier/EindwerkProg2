@@ -43,23 +43,10 @@ namespace FitnessAPI
             ));
             builder.Services.AddSingleton<ReservationService>();
 
-            builder.Services.AddSingleton<ICyclingSessionRepo>(r => new CyclingSessionRepo(
-                connectionString
-            ));
-            builder.Services.AddSingleton<CyclingSessionService>();
-
-            builder.Services.AddSingleton<IRunningSessionMainRepo>(r => new RunningSessionMainRepo(
-                connectionString
-            ));
-            builder.Services.AddSingleton<RunningSessionMainService>();
-
-            builder.Services.AddSingleton<IRunningSessionDetailRepo>(
-                r => new RunningSessionDetailRepo(connectionString)
-            );
-            builder.Services.AddSingleton<RunningSessionDetailService>();
-
             builder.Services.AddSingleton<IProgramRepo>(r => new ProgramRepo(connectionString));
             builder.Services.AddSingleton<ProgramService>();
+
+            builder.Services.AddSingleton<MaintenanceService>();
 
             var app = builder.Build();
 
