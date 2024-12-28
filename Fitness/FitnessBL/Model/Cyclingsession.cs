@@ -1,52 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using FitnessBL.Exceptions;
-
-namespace FitnessBL.Model
+﻿namespace FitnessBL.Model
 {
-    public class Cyclingsession
+    public class Cyclingsession : TrainingSession
     {
         private int cyclingsession_id;
         public int Cyclingsession_id
         {
             get { return cyclingsession_id; }
             set { cyclingsession_id = value; }
-        }
-
-        private DateTime date;
-        public DateTime Date
-        {
-            get { return date; }
-            set
-            {
-                if (value > DateTime.Now)
-                {
-                    throw new CyclingSessionException(
-                        "De datum van de cyclingsession kan niet in de toekomst liggen."
-                    );
-                }
-                date = value;
-            }
-        }
-
-        private int duration;
-        public int Duration
-        {
-            get { return duration; }
-            set
-            {
-                if (value <= 0)
-                {
-                    throw new CyclingSessionException(
-                        "De duration van de cyclingsession moet groter zijn dan 0."
-                    );
-                }
-                duration = value;
-            }
         }
 
         private int avg_watt;
@@ -57,9 +17,7 @@ namespace FitnessBL.Model
             {
                 if (value < 0)
                 {
-                    throw new CyclingSessionException(
-                        "Het gemiddelde wattage kan niet negatief zijn."
-                    );
+                    throw new Exception("Het AverageWattage kan niet negatief zijn.");
                 }
                 avg_watt = value;
             }
@@ -71,10 +29,10 @@ namespace FitnessBL.Model
             get { return max_watt; }
             set
             {
-                if (value < 0 || value < max_watt)
+                if (value < 0 || value < avg_watt)
                 {
-                    throw new CyclingSessionException(
-                        "Het maximale wattage kan niet lager zijn dan het gemiddelde watt of negatief."
+                    throw new Exception(
+                        "Het MaxWattage kan niet lager zijn dan het gemiddelde watt of negatief."
                     );
                 }
                 max_watt = value;
@@ -89,9 +47,7 @@ namespace FitnessBL.Model
             {
                 if (value < 0)
                 {
-                    throw new CyclingSessionException(
-                        "De gemiddelde cadans kan niet negatief zijn."
-                    );
+                    throw new Exception("De AverageCadence kan niet negatief zijn.");
                 }
                 avg_cadence = value;
             }
@@ -105,8 +61,8 @@ namespace FitnessBL.Model
             {
                 if (value < 0 || value < avg_cadence)
                 {
-                    throw new CyclingSessionException(
-                        "De maximale cadans kan niet lager zijn dan de gemiddelde cadans of negatief."
+                    throw new Exception(
+                        "De MaxCadance kan niet lager zijn dan de gemiddelde cadans of negatief."
                     );
                 }
                 max_cadence = value;
@@ -121,7 +77,7 @@ namespace FitnessBL.Model
             {
                 if (string.IsNullOrWhiteSpace(value) || value.Equals("string"))
                 {
-                    throw new CyclingSessionException("Het trainingstype mag niet leeg zijn.");
+                    throw new Exception("Het trainingstype mag niet leeg zijn.");
                 }
                 trainingsType = value;
             }
@@ -134,20 +90,8 @@ namespace FitnessBL.Model
             set { comment = value; }
         }
 
-        private Member member;
-        public Member Member
-        {
-            get { return member; }
-            set
-            {
-                if (value == null)
-                {
-                    throw new MemberException("Member mag niet null zijn!");
-                }
-                member = value;
-            }
-        }
-
+        // Constructor
+        // Constructor zonder 'id' parameter, roept de base constructor aan
         public Cyclingsession(
             DateTime datum,
             int duur,
@@ -159,18 +103,17 @@ namespace FitnessBL.Model
             string opmerking,
             Member member
         )
+            : base(datum, duur, member) // Roep de constructor van de basisklasse aan
         {
-            Date = datum;
-            Duration = duur;
             Avg_watt = gemiddeldWatt;
             Max_watt = maximaalWatt;
             Avg_cadence = gemiddeldeCadans;
             Max_cadence = maximaleCadans;
             TrainingsType = trainingsType;
             Comment = opmerking;
-            Member = member;
         }
 
+        // Constructor met 'id' parameter, roept de base constructor aan
         public Cyclingsession(
             int id,
             DateTime datum,
@@ -183,17 +126,15 @@ namespace FitnessBL.Model
             string opmerking,
             Member member
         )
+            : base(datum, duur, member) // Roep de constructor van de basisklasse aan
         {
             Cyclingsession_id = id;
-            Date = datum;
-            Duration = duur;
             Avg_watt = gemiddeldWatt;
             Max_watt = maximaalWatt;
             Avg_cadence = gemiddeldeCadans;
             Max_cadence = maximaleCadans;
             TrainingsType = trainingsType;
             Comment = opmerking;
-            Member = member;
         }
     }
 }

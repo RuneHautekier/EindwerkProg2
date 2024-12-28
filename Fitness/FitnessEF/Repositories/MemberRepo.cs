@@ -178,5 +178,59 @@ namespace FitnessEF.Repositories
                 throw new RepoException("MemberRepo - DeleteMember");
             }
         }
+
+        public IEnumerable<TrainingSession> TrainingSessionsMember(Member member)
+        {
+            try
+            {
+                IEnumerable<CyclingSessionEF> cyclingSessionEFs = ctx
+                    .cyclingsession.Where(c => c.member_id == member.Member_id)
+                    .Include(m => m.member)
+                    .AsNoTracking()
+                    .ToList();
+
+                List<TrainingSession> TrainingSessions = new List<TrainingSession>();
+                foreach (CyclingSessionEF cEF in cyclingSessionEFs)
+                {
+                    Cyclingsession cs = new Cyclingsession(
+                        cEF.cyclingsession_id,
+                        cEF.date,
+                        cEF.duration,
+                        cEF.avg_watt,
+                        cEF.max_watt,
+                        cEF.avg_cadence,
+                        cEF.max_cadence,
+                        cEF.trainingtype,
+                        cEF.comment,
+                        MapMember.MapToDomain(cEF.member)
+                    );
+                    TrainingSessions.Add(cs);
+                }
+
+                IEnumerable<Runningsession_mainEF> rsmEFs = ctx
+                    .runningsession_main.Where(c => c.member_id == member.Member_id)
+                    .Include(m => m.Member)
+                    .AsNoTracking()
+                    .ToList();
+                foreach (Runningsession_mainEF rsmEF in rsmEFs)
+                {
+                    Runningsession_main rsm = new Runningsession_main(
+                        rsmEF.runningsession_id,
+                        rsmEF.date,
+                        rsmEF.duration,
+                        rsmEF.avg_speed,
+                        MapMember.MapToDomain(rsmEF.Member)
+                    );
+
+                    TrainingSessions.Add(rsm);
+                }
+
+                return TrainingSessions;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - TrainingSessionsMember");
+            }
+        }
     }
 }

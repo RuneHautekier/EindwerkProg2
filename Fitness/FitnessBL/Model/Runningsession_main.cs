@@ -1,52 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using FitnessBL.Exceptions;
-
-namespace FitnessBL.Model
+﻿namespace FitnessBL.Model
 {
-    public class Runningsession_main
+    public class Runningsession_main : TrainingSession
     {
         private int runningsession_id;
         public int Runningsession_id
         {
             get { return runningsession_id; }
             set { runningsession_id = value; }
-        }
-
-        private DateTime date;
-        public DateTime Date
-        {
-            get { return date; }
-            set
-            {
-                if (value == null || value > DateTime.Now)
-                {
-                    throw new RunningSessionMainException(
-                        "De date van de hardloopsessie kan niet in de toekomst liggen."
-                    );
-                }
-                date = value;
-            }
-        }
-
-        private int duration;
-        public int Duration
-        {
-            get { return duration; }
-            set
-            {
-                if (value <= 0)
-                {
-                    throw new RunningSessionMainException(
-                        "De duration van de RunningSession moet groter zijn dan 0."
-                    );
-                }
-                duration = value;
-            }
         }
 
         private float avg_speed;
@@ -57,36 +17,21 @@ namespace FitnessBL.Model
             {
                 if (value <= 0)
                 {
-                    throw new RunningSessionMainException(
-                        "De average speed kan niet 0 of negatief zijn!"
-                    );
+                    throw new Exception("De gemiddelde snelheid moet groter zijn dan 0.");
                 }
                 avg_speed = value;
             }
         }
 
-        private Member member;
-        public Member Member
-        {
-            get { return member; }
-            set
-            {
-                if (value == null)
-                {
-                    throw new RunningSessionMainException("Member mag niet null zijn.");
-                }
-                member = value;
-            }
-        }
-
+        // Constructor
+        // Constructor zonder 'id' parameter, roept de base constructor aan
         public Runningsession_main(DateTime datum, int duur, float gemiddeldeSnelheid, Member klant)
+            : base(datum, duur, klant) // Roep de constructor van de basisklasse aan
         {
-            Date = datum;
-            Duration = duur;
             Avg_speed = gemiddeldeSnelheid;
-            Member = klant;
         }
 
+        // Constructor met 'id' parameter, roept de base constructor aan
         public Runningsession_main(
             int id,
             DateTime datum,
@@ -94,12 +39,10 @@ namespace FitnessBL.Model
             float gemiddeldeSnelheid,
             Member klant
         )
+            : base(datum, duur, klant) // Roep de constructor van de basisklasse aan
         {
             Runningsession_id = id;
-            Date = datum;
-            Duration = duur;
             Avg_speed = gemiddeldeSnelheid;
-            Member = klant;
         }
     }
 }

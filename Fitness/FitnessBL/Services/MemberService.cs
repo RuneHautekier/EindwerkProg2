@@ -88,5 +88,21 @@ namespace FitnessBL.Services
 
             memberRepo.DeleteMember(member);
         }
+
+        public IEnumerable<TrainingSession> GetTrainingSessionsMember(Member member)
+        {
+            if (!memberRepo.IsMemberId(member))
+                throw new ServiceException(
+                    "MemberService - GetTrainingSessionsMember - member bestaat niet met dit id!"
+                );
+            IEnumerable<TrainingSession> TrainingSessions = memberRepo.TrainingSessionsMember(
+                member
+            );
+            if (TrainingSessions.Count() == 0)
+                throw new ServiceException(
+                    "MemberService - GetTrainingSessionsMember - Deze member heeft nog geen TrainingSessions!"
+                );
+            return TrainingSessions;
+        }
     }
 }

@@ -10,6 +10,7 @@ namespace FitnessBL.Interfaces
     public interface IMemberRepo
     {
         IEnumerable<Member> GetMembers();
+        IEnumerable<TrainingSession> TrainingSessionsMember(Member member);
         Member GetMemberId(int id);
         Member GetMemberNaam(string vn, string ln);
         Member AddMember(Member member);
@@ -18,6 +19,5 @@ namespace FitnessBL.Interfaces
         bool IsMemberEmail(Member member);
         void UpdateMember(Member member);
         void DeleteMember(Member member);
-        List
     }
 }

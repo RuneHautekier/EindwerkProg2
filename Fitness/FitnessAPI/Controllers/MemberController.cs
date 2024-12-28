@@ -164,5 +164,65 @@ namespace FitnessAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("/GetTrainingSessionsMember/{id}")]
+        public IActionResult GetTrainingSessionsMember(int id)
+        {
+            try
+            {
+                Member member = memberService.GetMemberId(id);
+                IEnumerable<TrainingSession> TrainingSessions =
+                    memberService.GetTrainingSessionsMember(member);
+
+                // Maak een lijst om dynamische DTO-objecten op te slaan
+                List<dynamic> trainingSessionDTOs = new List<dynamic>();
+
+                // Itereer door alle trainingssessies
+                foreach (TrainingSession ts in TrainingSessions)
+                {
+                    // Controleer of het een RunningSession is
+                    if (ts is Runningsession_main runningSession)
+                    {
+                        // Voeg een DTO-object toe met alleen relevante velden voor een RunningSession
+                        trainingSessionDTOs.Add(
+                            new
+                            {
+                                SessionType = "Running",
+                                Id = runningSession.Runningsession_id,
+                                Date = runningSession.Date,
+                                Duration = runningSession.Duration,
+                                AvgSpeed = runningSession.Avg_speed
+                            }
+                        );
+                    }
+                    // Controleer of het een CyclingSession is
+                    else if (ts is Cyclingsession cyclingSession)
+                    {
+                        // Voeg een DTO-object toe met alleen relevante velden voor een CyclingSession
+                        trainingSessionDTOs.Add(
+                            new
+                            {
+                                SessionType = "Cycling",
+                                Id = cyclingSession.Cyclingsession_id,
+                                Date = cyclingSession.Date,
+                                Duration = cyclingSession.Duration,
+                                AvgWatt = cyclingSession.Avg_watt,
+                                MaxWatt = cyclingSession.Max_watt,
+                                AvgCadence = cyclingSession.Avg_cadence,
+                                MaxCadence = cyclingSession.Max_cadence,
+                                TrainingsType = cyclingSession.TrainingsType,
+                                Comment = cyclingSession.Comment
+                            }
+                        );
+                    }
+                }
+
+                return Ok(trainingSessionDTOs);
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
