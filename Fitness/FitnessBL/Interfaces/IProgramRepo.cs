@@ -13,6 +13,5 @@ namespace FitnessBL.Interfaces
         bool BestaatProgram(Program program);
         Program AddProgram(Program program);
         void UpdateProgram(Program program);
-        IEnumerable<Program> GetProgramListMember(Member member);
     }
 }

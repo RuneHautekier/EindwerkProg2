@@ -10,7 +10,23 @@ namespace FitnessBL.Interfaces
     public interface IMemberRepo
     {
         IEnumerable<Member> GetMembers();
-        IEnumerable<TrainingSession> TrainingSessionsMember(Member member);
+        IEnumerable<TrainingSession> GetTrainingSessionsMember(Member member);
+        IEnumerable<Program> GetProgramListMember(Member member);
+        IEnumerable<TrainingSession> GetTrainingSessionsMemberInMaandInJaar(
+            Member member,
+            DateTime date
+        );
+
+        Dictionary<int, int> GetTrainingSessionsMemberAantalPerMaandInJaar(
+            Member member,
+            DateTime date
+        );
+
+        Dictionary<
+            string,
+            Dictionary<int, int>
+        > GetTrainingSessionsMemberAantalPerMaandInJaarMetType(Member member, DateTime date);
+
         Member GetMemberId(int id);
         Member AddMember(Member member);
         bool IsMemberName(Member member);

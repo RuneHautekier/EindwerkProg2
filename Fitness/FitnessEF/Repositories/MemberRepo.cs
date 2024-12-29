@@ -47,6 +47,249 @@ namespace FitnessEF.Repositories
             }
         }
 
+        public IEnumerable<TrainingSession> GetTrainingSessionsMember(Member member)
+        {
+            try
+            {
+                IEnumerable<CyclingSessionEF> cyclingSessionEFs = ctx
+                    .cyclingsession.Where(c => c.member_id == member.Member_id)
+                    .Include(m => m.member)
+                    .AsNoTracking()
+                    .ToList();
+
+                List<TrainingSession> TrainingSessions = new List<TrainingSession>();
+                foreach (CyclingSessionEF cEF in cyclingSessionEFs)
+                {
+                    Cyclingsession cs = new Cyclingsession(
+                        cEF.cyclingsession_id,
+                        cEF.date,
+                        cEF.duration,
+                        cEF.avg_watt,
+                        cEF.max_watt,
+                        cEF.avg_cadence,
+                        cEF.max_cadence,
+                        cEF.trainingtype,
+                        cEF.comment,
+                        MapMember.MapToDomain(cEF.member)
+                    );
+                    TrainingSessions.Add(cs);
+                }
+
+                IEnumerable<Runningsession_mainEF> rsmEFs = ctx
+                    .runningsession_main.Where(c => c.member_id == member.Member_id)
+                    .Include(m => m.Member)
+                    .AsNoTracking()
+                    .ToList();
+                foreach (Runningsession_mainEF rsmEF in rsmEFs)
+                {
+                    Runningsession_main rsm = new Runningsession_main(
+                        rsmEF.runningsession_id,
+                        rsmEF.date,
+                        rsmEF.duration,
+                        rsmEF.avg_speed,
+                        MapMember.MapToDomain(rsmEF.Member)
+                    );
+
+                    TrainingSessions.Add(rsm);
+                }
+
+                return TrainingSessions;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - TrainingSessionsMember");
+            }
+        }
+
+        public IEnumerable<Program> GetProgramListMember(Member member)
+        {
+            try
+            {
+                List<ProgramEF> programEFs = ctx
+                    .program.Where(p => p.Members.Any(m => m.member_id == member.Member_id)) // Haal programma's op waarin lid 17 zit
+                    .ToList();
+
+                List<Program> programs = new List<Program>();
+                foreach (ProgramEF programEF in programEFs)
+                {
+                    programs.Add(MapProgram.MapToDomain(programEF));
+                }
+
+                return programs;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - GetProgramListMember");
+            }
+        }
+
+        public IEnumerable<TrainingSession> GetTrainingSessionsMemberInMaandInJaar(
+            Member member,
+            DateTime datum
+        )
+        {
+            try
+            {
+                IEnumerable<CyclingSessionEF> cyclingSessionEFs = ctx
+                    .cyclingsession.Where(c =>
+                        c.member_id == member.Member_id
+                        && c.date.Month == datum.Month
+                        && c.date.Year == datum.Year
+                    )
+                    .Include(c => c.member)
+                    .AsNoTracking()
+                    .ToList();
+
+                List<TrainingSession> TrainingSessions = new List<TrainingSession>();
+                foreach (CyclingSessionEF cEF in cyclingSessionEFs)
+                {
+                    Cyclingsession cs = new Cyclingsession(
+                        cEF.cyclingsession_id,
+                        cEF.date,
+                        cEF.duration,
+                        cEF.avg_watt,
+                        cEF.max_watt,
+                        cEF.avg_cadence,
+                        cEF.max_cadence,
+                        cEF.trainingtype,
+                        cEF.comment,
+                        MapMember.MapToDomain(cEF.member)
+                    );
+                    TrainingSessions.Add(cs);
+                }
+
+                IEnumerable<Runningsession_mainEF> rsmEFs = ctx
+                    .runningsession_main.Where(r =>
+                        r.member_id == member.Member_id
+                        && r.date.Month == datum.Month
+                        && r.date.Year == datum.Year
+                    )
+                    .Include(m => m.Member)
+                    .AsNoTracking()
+                    .ToList();
+                foreach (Runningsession_mainEF rsmEF in rsmEFs)
+                {
+                    Runningsession_main rsm = new Runningsession_main(
+                        rsmEF.runningsession_id,
+                        rsmEF.date,
+                        rsmEF.duration,
+                        rsmEF.avg_speed,
+                        MapMember.MapToDomain(rsmEF.Member)
+                    );
+
+                    TrainingSessions.Add(rsm);
+                }
+
+                return TrainingSessions.OrderBy(ts => ts.Date).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - TrainingSessionsMemberPerMaandEnDatum");
+            }
+        }
+
+        public Dictionary<int, int> GetTrainingSessionsMemberAantalPerMaandInJaar(
+            Member member,
+            DateTime date
+        )
+        {
+            try
+            {
+                Dictionary<int, int> totalCyclingSessionsPerMonth = ctx
+                    .cyclingsession.Where(c =>
+                        c.member_id == member.Member_id && c.date.Year == date.Year
+                    )
+                    .Include(m => m.member)
+                    .GroupBy(c => c.date.Month)
+                    .Select(g => new { Month = g.Key, TotalSessions = g.Count() })
+                    .OrderBy(result => result.Month)
+                    .ToDictionary(x => x.Month, x => x.TotalSessions);
+
+                Dictionary<int, int> totalRunningSessionsPerMonth = ctx
+                    .runningsession_main.Where(c =>
+                        c.member_id == member.Member_id && c.date.Year == date.Year
+                    )
+                    .Include(m => m.Member)
+                    .GroupBy(c => c.date.Month)
+                    .Select(g => new { Month = g.Key, TotalSessions = g.Count() })
+                    .OrderBy(result => result.Month)
+                    .ToDictionary(x => x.Month, x => x.TotalSessions);
+
+                // Combineer de resultaten
+                Dictionary<int, int> combinedSessionsPerMonth = new Dictionary<int, int>();
+
+                // Voeg cycling sessions toe aan de dictionary
+                foreach (int month in totalCyclingSessionsPerMonth.Keys)
+                {
+                    combinedSessionsPerMonth[month] = totalCyclingSessionsPerMonth[month];
+                }
+
+                // Voeg running sessions toe aan de dictionary, of tel ze op als de maand al bestaat
+                foreach (int month in totalRunningSessionsPerMonth.Keys)
+                {
+                    if (combinedSessionsPerMonth.ContainsKey(month))
+                    {
+                        combinedSessionsPerMonth[month] += totalRunningSessionsPerMonth[month];
+                    }
+                    else
+                    {
+                        combinedSessionsPerMonth[month] = totalRunningSessionsPerMonth[month];
+                    }
+                }
+
+                return combinedSessionsPerMonth;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException(
+                    "MemberRepo - GetTrainingSessionsMemberAantalPerMaandInJaar"
+                );
+            }
+        }
+
+        public Dictionary<
+            string,
+            Dictionary<int, int>
+        > GetTrainingSessionsMemberAantalPerMaandInJaarMetType(Member member, DateTime date)
+        {
+            try
+            {
+                Dictionary<int, int> totalCyclingSessionsPerMonth = ctx
+                    .cyclingsession.Where(c =>
+                        c.member_id == member.Member_id && c.date.Year == date.Year
+                    )
+                    .Include(m => m.member)
+                    .GroupBy(c => c.date.Month)
+                    .Select(g => new { Month = g.Key, TotalSessions = g.Count() })
+                    .OrderBy(result => result.Month)
+                    .ToDictionary(x => x.Month, x => x.TotalSessions);
+
+                Dictionary<int, int> totalRunningSessionsPerMonth = ctx
+                    .runningsession_main.Where(c =>
+                        c.member_id == member.Member_id && c.date.Year == date.Year
+                    )
+                    .Include(m => m.Member)
+                    .GroupBy(c => c.date.Month)
+                    .Select(g => new { Month = g.Key, TotalSessions = g.Count() })
+                    .OrderBy(result => result.Month)
+                    .ToDictionary(x => x.Month, x => x.TotalSessions);
+
+                Dictionary<string, Dictionary<int, int>> SessiesPerMaandMetType =
+                    new Dictionary<string, Dictionary<int, int>>();
+
+                SessiesPerMaandMetType.Add("CyclingSessions", totalCyclingSessionsPerMonth);
+                SessiesPerMaandMetType.Add("RunningSessions", totalRunningSessionsPerMonth);
+
+                return SessiesPerMaandMetType;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException(
+                    "MemberRepo - GetTrainingSessionsMemberAantalPerMaandInJaarMetType"
+                );
+            }
+        }
+
         public Member GetMemberId(int id)
         {
             try
@@ -151,60 +394,6 @@ namespace FitnessEF.Repositories
             catch (Exception ex)
             {
                 throw new RepoException("MemberRepo - DeleteMember");
-            }
-        }
-
-        public IEnumerable<TrainingSession> TrainingSessionsMember(Member member)
-        {
-            try
-            {
-                IEnumerable<CyclingSessionEF> cyclingSessionEFs = ctx
-                    .cyclingsession.Where(c => c.member_id == member.Member_id)
-                    .Include(m => m.member)
-                    .AsNoTracking()
-                    .ToList();
-
-                List<TrainingSession> TrainingSessions = new List<TrainingSession>();
-                foreach (CyclingSessionEF cEF in cyclingSessionEFs)
-                {
-                    Cyclingsession cs = new Cyclingsession(
-                        cEF.cyclingsession_id,
-                        cEF.date,
-                        cEF.duration,
-                        cEF.avg_watt,
-                        cEF.max_watt,
-                        cEF.avg_cadence,
-                        cEF.max_cadence,
-                        cEF.trainingtype,
-                        cEF.comment,
-                        MapMember.MapToDomain(cEF.member)
-                    );
-                    TrainingSessions.Add(cs);
-                }
-
-                IEnumerable<Runningsession_mainEF> rsmEFs = ctx
-                    .runningsession_main.Where(c => c.member_id == member.Member_id)
-                    .Include(m => m.Member)
-                    .AsNoTracking()
-                    .ToList();
-                foreach (Runningsession_mainEF rsmEF in rsmEFs)
-                {
-                    Runningsession_main rsm = new Runningsession_main(
-                        rsmEF.runningsession_id,
-                        rsmEF.date,
-                        rsmEF.duration,
-                        rsmEF.avg_speed,
-                        MapMember.MapToDomain(rsmEF.Member)
-                    );
-
-                    TrainingSessions.Add(rsm);
-                }
-
-                return TrainingSessions;
-            }
-            catch (Exception ex)
-            {
-                throw new RepoException("MemberRepo - TrainingSessionsMember");
             }
         }
 

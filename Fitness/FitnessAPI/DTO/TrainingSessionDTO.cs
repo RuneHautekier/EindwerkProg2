@@ -9,10 +9,12 @@
     public float? AvgSpeed { get; set; }
 
     // Velden specifiek voor CyclingSession
+
     public int? AvgWatt { get; set; }
     public int? MaxWatt { get; set; }
     public int? AvgCadence { get; set; }
     public int? MaxCadence { get; set; }
     public string TrainingsType { get; set; }
     public string Comment { get; set; }
+    public string? TrainingsImpact { get; set; }
 }

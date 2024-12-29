@@ -90,27 +90,5 @@ namespace FitnessEF.Repositories
                 throw new RepoException("ProgramRepo - UpdateProgram");
             }
         }
-
-        public IEnumerable<Program> GetProgramListMember(Member member)
-        {
-            try
-            {
-                List<ProgramEF> programEFs = ctx
-                    .program.Where(p => p.Members.Any(m => m.member_id == member.Member_id)) // Haal programma's op waarin lid 17 zit
-                    .ToList();
-
-                List<Program> programs = new List<Program>();
-                foreach (ProgramEF programEF in programEFs)
-                {
-                    programs.Add(MapProgram.MapToDomain(programEF));
-                }
-
-                return programs;
-            }
-            catch (Exception ex)
-            {
-                throw new RepoException("ProgramRepo - GetProgramListMember");
-            }
-        }
     }
 }

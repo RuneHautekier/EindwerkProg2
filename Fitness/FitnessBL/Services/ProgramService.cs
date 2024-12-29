@@ -54,25 +54,5 @@ namespace FitnessBL.Services
             programRepo.UpdateProgram(program);
             return program;
         }
-
-        public IEnumerable<Program> GetProgramListMember(Member member)
-        {
-            if (member == null)
-                throw new ServiceException(
-                    "ProgramService - GetProgramListMember - Member is null"
-                );
-            if (!memberRepo.IsMemberId(member))
-                throw new ServiceException(
-                    "ProgramService - GetProgramListMember - Er bestaat geen member met dit id!"
-                );
-
-            IEnumerable<Program> programList = new List<Program>();
-            programList = programRepo.GetProgramListMember(member);
-            if (!programList.Any())
-                throw new ServiceException(
-                    "ProgramService - GetProgramListMember - Deze member is nog voor geen enkel Program ingeschreven!"
-                );
-            return programList;
-        }
     }
 }

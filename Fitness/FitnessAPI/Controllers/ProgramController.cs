@@ -35,37 +35,6 @@ namespace FitnessAPI.Controllers
             }
         }
 
-        [HttpGet("/ProgramsMember/{id}")]
-        public IActionResult GetProgramListMember(int id)
-        {
-            try
-            {
-                Member member = memberService.GetMemberId(id);
-                IEnumerable<ProgramBL> programs = programService.GetProgramListMember(member);
-
-                List<ProgramDTO> programDTOs = new List<ProgramDTO>();
-                foreach (ProgramBL program in programs)
-                {
-                    ProgramDTO pDTO = new ProgramDTO
-                    {
-                        ProgramCode = program.ProgramCode,
-                        Name = program.Name,
-                        Target = program.Target,
-                        StartDate = program.Startdate.Date,
-                        MaxMembers = program.Max_members
-                    };
-
-                    programDTOs.Add(pDTO);
-                }
-
-                return Ok(programDTOs);
-            }
-            catch (ServiceException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
         [HttpPost("/ProgrammaToevoegen")]
         public IActionResult AddProgram([FromBody] ProgramAanmakenDTO programDTO)
         {

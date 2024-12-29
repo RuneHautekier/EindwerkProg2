@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FitnessBL.Exceptions;
 using FitnessBL.Interfaces;
 using FitnessBL.Model;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FitnessBL.Services
 {
@@ -24,6 +25,120 @@ namespace FitnessBL.Services
             if (members.Count() == 0)
                 throw new ServiceException("Er zitten nog geen members in de database!");
             return members;
+        }
+
+        public IEnumerable<TrainingSession> GetTrainingSessionsMember(Member member)
+        {
+            if (member == null)
+                throw new ServiceException(
+                    "MemberService - GetTrainingSessionsMember - member is null!"
+                );
+
+            if (!memberRepo.IsMemberId(member))
+                throw new ServiceException(
+                    "MemberService - GetTrainingSessionsMember - member bestaat niet met dit id!"
+                );
+            IEnumerable<TrainingSession> TrainingSessions = memberRepo.GetTrainingSessionsMember(
+                member
+            );
+            if (TrainingSessions.Count() == 0)
+                throw new ServiceException(
+                    "MemberService - GetTrainingSessionsMember - Deze member heeft nog geen TrainingSessions!"
+                );
+            return TrainingSessions;
+        }
+
+        public IEnumerable<Program> GetProgramListMember(Member member)
+        {
+            if (member == null)
+                throw new ServiceException("MemberService - GetProgramListMember - Member is null");
+            if (!memberRepo.IsMemberId(member))
+                throw new ServiceException(
+                    "MemberService - GetProgramListMember - Er bestaat geen member met dit id!"
+                );
+
+            IEnumerable<Program> programList = new List<Program>();
+            programList = memberRepo.GetProgramListMember(member);
+            if (!programList.Any())
+                throw new ServiceException(
+                    "MemberService - GetProgramListMember - Deze member is nog voor geen enkel Program ingeschreven!"
+                );
+            return programList;
+        }
+
+        public IEnumerable<TrainingSession> GetTrainingSessionsMemberInMaandInJaar(
+            Member member,
+            DateTime date
+        )
+        {
+            if (member == null)
+                throw new ServiceException(
+                    "MemberService - TrainingSessionsMemberPerMaandInJaar - member is null!"
+                );
+
+            if (!memberRepo.IsMemberId(member))
+                throw new ServiceException(
+                    "MemberService - TrainingSessionsMemberPerMaandInJaar - member bestaat niet met dit id!"
+                );
+            IEnumerable<TrainingSession> TrainingSessions =
+                memberRepo.GetTrainingSessionsMemberInMaandInJaar(member, date);
+            if (TrainingSessions.Count() == 0)
+                throw new ServiceException(
+                    $"MemberService - TrainingSessionsMemberPerMaandInJaar - Deze member heeft geen TrainingSessions in maand {date.Month} in jaar {date.Year}!"
+                );
+            return TrainingSessions;
+        }
+
+        public Dictionary<int, int> GetTrainingSessionsMemberAantalPerMaandInJaar(
+            Member member,
+            DateTime date
+        )
+        {
+            if (member == null)
+                throw new ServiceException(
+                    "MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - member is null!"
+                );
+
+            if (!memberRepo.IsMemberId(member))
+                throw new ServiceException(
+                    "MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - member bestaat niet met dit id!"
+                );
+
+            Dictionary<int, int> dic = memberRepo.GetTrainingSessionsMemberAantalPerMaandInJaar(
+                member,
+                date
+            );
+
+            if (dic.Keys.Count() == 0)
+                throw new ServiceException(
+                    $"MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - Deze member heeft geen TrainingSessions in maand jaar {date.Year}!"
+                );
+            return dic;
+        }
+
+        public Dictionary<
+            string,
+            Dictionary<int, int>
+        > GetTrainingSessionsMemberAantalPerMaandInJaarMetType(Member member, DateTime date)
+        {
+            if (member == null)
+                throw new ServiceException(
+                    "MemberService - GetTrainingSessionsMemberAantalPerMaandInJaarMetType - member is null!"
+                );
+
+            if (!memberRepo.IsMemberId(member))
+                throw new ServiceException(
+                    "MemberService - GetTrainingSessionsMemberAantalPerMaandInJaarMetType - member bestaat niet met dit id!"
+                );
+
+            Dictionary<string, Dictionary<int, int>> dic =
+                memberRepo.GetTrainingSessionsMemberAantalPerMaandInJaarMetType(member, date);
+
+            if (dic.Keys.Count() == 0)
+                throw new ServiceException(
+                    $"MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - Deze member heeft geen TrainingSessions in maand jaar {date.Year}!"
+                );
+            return dic;
         }
 
         public Member GetMemberId(int id)
@@ -77,27 +192,6 @@ namespace FitnessBL.Services
                 );
 
             memberRepo.DeleteMember(member);
-        }
-
-        public IEnumerable<TrainingSession> GetTrainingSessionsMember(Member member)
-        {
-            if (member == null)
-                throw new ServiceException(
-                    "MemberService - GetAantalGeboekteTijdsloten - member is null!"
-                );
-
-            if (!memberRepo.IsMemberId(member))
-                throw new ServiceException(
-                    "MemberService - GetTrainingSessionsMember - member bestaat niet met dit id!"
-                );
-            IEnumerable<TrainingSession> TrainingSessions = memberRepo.TrainingSessionsMember(
-                member
-            );
-            if (TrainingSessions.Count() == 0)
-                throw new ServiceException(
-                    "MemberService - GetTrainingSessionsMember - Deze member heeft nog geen TrainingSessions!"
-                );
-            return TrainingSessions;
         }
 
         public int GetAantalGeboekteTijdsloten(Member member, DateTime date)
