@@ -13,7 +13,7 @@ namespace FitnessBL.Interfaces
         int GetNieuwReservationId();
         Reservation AddReservation(Reservation reservation);
         void CheckIfReservationExists(Reservation reservation);
-        IEnumerable<Reservation> GetFutureReservationsForEquipment(int equipmentId);
         void UpdateReservationEquipment(Reservation reservation, Equipment newEquipment);
+        void DeleteReservation(Reservation reservation);
     }
 }

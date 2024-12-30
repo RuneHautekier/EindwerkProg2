@@ -13,17 +13,14 @@ namespace FitnessAPI.Controllers
     {
         private EquipmentService equipmentService;
         private ReservationService reservationService;
-        private MaintenanceService maintenanceService;
 
         public EquipmentController(
             EquipmentService equipmentService,
-            ReservationService reservationService,
-            MaintenanceService maintenanceService
+            ReservationService reservationService
         )
         {
             this.equipmentService = equipmentService;
             this.reservationService = reservationService;
-            this.maintenanceService = maintenanceService;
         }
 
         [HttpGet("/EquipmentViaId/{id}")]
@@ -85,19 +82,26 @@ namespace FitnessAPI.Controllers
             [FromBody] EquipmentOnderhoudDTO equipmentOnderhoudDTO
         )
         {
-            try
+            using (var transaction = equipmentService.equipmentRepo.BeginTransaction()) // Start de transactie
             {
-                Equipment equipment = equipmentService.GetEquipmentId(
-                    equipmentOnderhoudDTO.EquipmentId
-                );
-                maintenanceService.PlaatsEquipmentOnderhoudMetReserveringUpdate(equipment);
-                return Ok(
-                    $"Equipment met id {equipmentOnderhoudDTO.EquipmentId} is succesvol in onderhoud geplaatst!"
-                );
-            }
-            catch (ServiceException ex)
-            {
-                return BadRequest(ex.Message);
+                try
+                {
+                    Equipment equipment = equipmentService.GetEquipmentId(
+                        equipmentOnderhoudDTO.EquipmentId
+                    );
+
+                    reservationService.UpdateReservationsWithNewEquipment(equipment);
+                    equipmentService.EquipmentPlaatsOnderhoud(equipment);
+                    transaction.Commit();
+                    return Ok(
+                        $"Equipment met id {equipmentOnderhoudDTO.EquipmentId} is succesvol in onderhoud geplaatst!"
+                    );
+                }
+                catch (ServiceException ex)
+                {
+                    transaction.Rollback();
+                    return BadRequest(ex.Message);
+                }
             }
         }
 

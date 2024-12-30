@@ -111,7 +111,7 @@ namespace FitnessBL.Services
 
             if (dic.Keys.Count() == 0)
                 throw new ServiceException(
-                    $"MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - Deze member heeft geen TrainingSessions in maand jaar {date.Year}!"
+                    $"MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - Deze member heeft geen TrainingSessions in maand {date.Month} jaar {date.Year}!"
                 );
             return dic;
         }
@@ -136,7 +136,7 @@ namespace FitnessBL.Services
 
             if (dic.Keys.Count() == 0)
                 throw new ServiceException(
-                    $"MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - Deze member heeft geen TrainingSessions in maand jaar {date.Year}!"
+                    $"MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - Deze member heeft geen TrainingSessions in maand {date.Month} jaar {date.Year}!"
                 );
             return dic;
         }
@@ -163,10 +163,7 @@ namespace FitnessBL.Services
                 throw new ServiceException(
                     "MemberService - AddMember - Dit email is al in gebruik!"
                 );
-            if (member.Birthday > DateTime.Now)
-                throw new ServiceException(
-                    "MemberService - AddMember - Je kan niet in de toekomst geboren zijn!"
-                );
+
             memberRepo.AddMember(member);
             return member;
         }

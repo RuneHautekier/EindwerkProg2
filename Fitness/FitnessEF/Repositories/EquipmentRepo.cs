@@ -204,6 +204,48 @@ namespace FitnessEF.Repositories
             }
         }
 
+        public IEnumerable<Reservation> GetFutureReservationsForEquipment(Equipment equipment)
+        {
+            try
+            {
+                // Stap 1: Haal de reserveringen op die gekoppeld zijn aan het opgegeven equipment
+                List<ReservationEF> futureReservations = ctx
+                    .reservation.Include(rs => rs.Equipment) // Zorg ervoor dat de equipment wordt geladen
+                    .Where(rs =>
+                        rs.equipment_id == equipment.Equipment_id && rs.date > DateTime.Now
+                    )
+                    .Include(m => m.Member)
+                    .Include(ts => ts.Time_slot)
+                    .OrderBy(rs => rs.date)
+                    .AsNoTracking()
+                    .ToList();
+
+                if (futureReservations == null)
+                {
+                    return new List<Reservation>();
+                }
+
+                // Stap 2: Groepeer de reserveringen per reservation_id
+                List<IGrouping<int, ReservationEF>> groupedReservations = futureReservations
+                    .GroupBy(rs => rs.reservation_id) // Groepeer op basis van reservation_id
+                    .ToList(); // Zet het resultaat om naar een lijst van groepen
+
+                // Stap 3: Map de gegroepeerde reserveringen naar het Reservation-domeinmodel
+                List<Reservation> reservations = new List<Reservation>();
+
+                foreach (IGrouping<int, ReservationEF> group in groupedReservations)
+                {
+                    reservations.Add(MapReservation.MapToDomain(group.ToList())); // Map naar je domeinmodel
+                }
+
+                return reservations;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("Error in GetFutureReservationsForEquipment", ex);
+            }
+        }
+
         public IDbContextTransaction BeginTransaction()
         {
             return ctx.Database.BeginTransaction();

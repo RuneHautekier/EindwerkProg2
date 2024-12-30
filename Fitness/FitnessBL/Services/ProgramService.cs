@@ -12,12 +12,10 @@ namespace FitnessBL.Services
     public class ProgramService
     {
         private IProgramRepo programRepo;
-        private IMemberRepo memberRepo;
 
-        public ProgramService(IProgramRepo programRepo, IMemberRepo memberRepo)
+        public ProgramService(IProgramRepo programRepo)
         {
             this.programRepo = programRepo;
-            this.memberRepo = memberRepo;
         }
 
         public Program GetProgramCode(string programCode)

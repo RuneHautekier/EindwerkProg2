@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,7 +44,7 @@ namespace FitnessEF.Repositories
                     .AsNoTracking()
                     .ToList();
 
-                if (reservationsEF == null)
+                if (reservationsEF.Count() == 0)
                 {
                     return null;
                 }
@@ -73,25 +74,21 @@ namespace FitnessEF.Repositories
 
         public Reservation AddReservation(Reservation reservation)
         {
-            using (var transaction = ctx.Database.BeginTransaction())
+            try
             {
-                try
-                {
-                    List<ReservationEF> rsEFs = MapReservation.MapToEF(reservation);
+                List<ReservationEF> rsEFs = MapReservation.MapToEF(reservation);
 
-                    foreach (ReservationEF rsEF in rsEFs)
-                    {
-                        ctx.reservation.Add(rsEF);
-                    }
-
-                    SaveAndClear();
-                    transaction.Commit();
-                    return reservation;
-                }
-                catch (Exception ex)
+                foreach (ReservationEF rsEF in rsEFs)
                 {
-                    throw new RepoException("TrainingRepo - AddTraining", ex);
+                    ctx.reservation.Add(rsEF);
                 }
+
+                SaveAndClear();
+                return reservation;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("TrainingRepo - AddTraining", ex);
             }
         }
 
@@ -104,8 +101,10 @@ namespace FitnessEF.Repositories
                     .reservation.Where(ts => ts.time_slot_id == timeSlot.Time_slot_id)
                     .Where(e => e.equipment_id == rs.TimeslotEquipment[timeSlot].Equipment_id)
                     .Where(d => d.date == rs.Date)
+                    .Where(m => m.member_id == rs.Member.Member_id)
                     .Include(ts => ts.Time_slot)
                     .Include(e => e.Equipment)
+                    .Include(m => m.Member)
                     .AsNoTracking()
                     .ToList();
             }
@@ -113,41 +112,6 @@ namespace FitnessEF.Repositories
             if (rsEFs.Any())
             {
                 throw new RepoException("Deze Reservation bestaat al!");
-            }
-        }
-
-        public IEnumerable<Reservation> GetFutureReservationsForEquipment(int equipmentId)
-        {
-            try
-            {
-                // Stap 1: Haal de reserveringen op die gekoppeld zijn aan het opgegeven equipment
-                List<ReservationEF> futureReservations = ctx
-                    .reservation.Include(rs => rs.Equipment) // Zorg ervoor dat de equipment wordt geladen
-                    .Where(rs => rs.equipment_id == equipmentId && rs.date > DateTime.Now)
-                    .Include(m => m.Member)
-                    .Include(ts => ts.Time_slot)
-                    .OrderBy(rs => rs.date)
-                    .AsNoTracking()
-                    .ToList();
-
-                // Stap 2: Groepeer de reserveringen per reservation_id
-                List<IGrouping<int, ReservationEF>> groupedReservations = futureReservations
-                    .GroupBy(rs => rs.reservation_id) // Groepeer op basis van reservation_id
-                    .ToList(); // Zet het resultaat om naar een lijst van groepen
-
-                // Stap 3: Map de gegroepeerde reserveringen naar het Reservation-domeinmodel
-                List<Reservation> reservations = new List<Reservation>();
-
-                foreach (IGrouping<int, ReservationEF> group in groupedReservations)
-                {
-                    reservations.Add(MapReservation.MapToDomain(group.ToList())); // Map naar je domeinmodel
-                }
-
-                return reservations;
-            }
-            catch (Exception ex)
-            {
-                throw new RepoException("Error in GetFutureReservationsForEquipment", ex);
             }
         }
 
@@ -166,19 +130,39 @@ namespace FitnessEF.Repositories
                     ctx.reservation.Update(reservationEF2);
                 }
 
+                SaveAndClear();
+
                 EquipmentOnderhoudEF equipmentOnderhoudEF = new EquipmentOnderhoudEF(
                     oudEquipment.Equipment_id
                 );
                 ctx.equipmentOnderhoud.Add(equipmentOnderhoudEF);
 
-                // Stap 4: Sla de wijzigingen op
-                //ctx.reservation.Update(rsEF);
                 SaveAndClear();
             }
             catch (Exception ex)
             {
-                // Als er een fout optreedt, rollback de transactie en gooi de uitzondering
                 throw new RepoException("Error in UpdateReservationEquipment", ex);
+            }
+        }
+
+        public void DeleteReservation(Reservation reservation)
+        {
+            try
+            {
+                List<ReservationEF> reservationEFs = ctx
+                    .reservation.Where(x => x.reservation_id == reservation.Reservation_id)
+                    .AsNoTracking()
+                    .ToList();
+
+                foreach (ReservationEF rEF in reservationEFs)
+                {
+                    ctx.reservation.Remove(rEF);
+                    SaveAndClear();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("ReservationRepo - DeleteReservation");
             }
         }
     }

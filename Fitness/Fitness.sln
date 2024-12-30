@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppDatabaseEF", "Con
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessAPI", "FitnessAPI\FitnessAPI.csproj", "{93E1E3FB-B265-464F-9F4D-B681FF034C73}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessTests", "FitnessTests\FitnessTests.csproj", "{42FF76DA-E7B4-4F76-AD69-8B031AAB97F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessWPF", "FitnessWPF\FitnessWPF.csproj", "{1968EAF4-2413-49FE-92F0-074D7F83A19A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +45,14 @@ Global
 		{93E1E3FB-B265-464F-9F4D-B681FF034C73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93E1E3FB-B265-464F-9F4D-B681FF034C73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93E1E3FB-B265-464F-9F4D-B681FF034C73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42FF76DA-E7B4-4F76-AD69-8B031AAB97F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42FF76DA-E7B4-4F76-AD69-8B031AAB97F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42FF76DA-E7B4-4F76-AD69-8B031AAB97F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42FF76DA-E7B4-4F76-AD69-8B031AAB97F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1968EAF4-2413-49FE-92F0-074D7F83A19A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1968EAF4-2413-49FE-92F0-074D7F83A19A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1968EAF4-2413-49FE-92F0-074D7F83A19A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1968EAF4-2413-49FE-92F0-074D7F83A19A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

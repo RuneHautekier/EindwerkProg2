@@ -46,8 +46,6 @@ namespace FitnessAPI
             builder.Services.AddSingleton<IProgramRepo>(r => new ProgramRepo(connectionString));
             builder.Services.AddSingleton<ProgramService>();
 
-            builder.Services.AddSingleton<MaintenanceService>();
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

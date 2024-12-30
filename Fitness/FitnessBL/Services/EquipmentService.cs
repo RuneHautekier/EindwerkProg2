@@ -33,7 +33,7 @@ namespace FitnessBL.Services
                 throw new ServiceException(
                     "EquipmentService - GetEquipmentId - Er is geen equipment met dit id!"
                 );
-            return equipmentRepo.GetEquipmentId(id);
+            return equipment;
         }
 
         public Equipment AddEquipment(Equipment equipment)
@@ -58,7 +58,28 @@ namespace FitnessBL.Services
                 throw new ServiceException(
                     "EquipmentService - DeleteEquipment - equipment bestaat niet op id"
                 );
+            if (GetFutureReservationsForEquipment(equipment).Count() != 0)
+                throw new ServiceException(
+                    "EquipmentService - DeleteEquipment - equipment kan niet verwijderd worden want heeft nog reservations!"
+                );
             equipmentRepo.DeleteEquipment(equipment);
+        }
+
+        public IEnumerable<Reservation> GetFutureReservationsForEquipment(Equipment equipment)
+        {
+            if (equipment == null)
+                throw new ServiceException(
+                    "EquipmentService - GetFutureReservationsForEquipment - equipment is null"
+                );
+            if (!equipmentRepo.IsEquipmentId(equipment))
+                throw new ServiceException(
+                    "EquipmentService - GetFutureReservationsForEquipment - equipment bestaat niet op id"
+                );
+
+            IEnumerable<Reservation> reservations = equipmentRepo.GetFutureReservationsForEquipment(
+                equipment
+            );
+            return reservations;
         }
 
         public void EquipmentPlaatsOnderhoud(Equipment equipment)
@@ -67,6 +88,7 @@ namespace FitnessBL.Services
                 throw new ServiceException(
                     "EquipmentService - EquipmentPlaatsOnderhoud - equipment is null"
                 );
+
             if (!equipmentRepo.IsEquipmentId(equipment))
                 throw new ServiceException(
                     "EquipmentService - EquipmentPlaatsOnderhoud - equipment bestaat niet op id"
@@ -75,6 +97,7 @@ namespace FitnessBL.Services
                 throw new ServiceException(
                     "EquipmentService - EquipmentPlaatsOnderhoud - Equipment zit al in onderhoud!"
                 );
+
             equipmentRepo.EquipmentPlaatsOnderhoud(equipment);
         }
 
@@ -90,7 +113,7 @@ namespace FitnessBL.Services
                 );
             if (!equipmentRepo.EquipmentInOnderhoud(equipment))
                 throw new ServiceException(
-                    "EquipmentService - EquipmentVerwijderOnderhoud - Equipment moet zit niet in onderhoud!"
+                    "EquipmentService - EquipmentVerwijderOnderhoud - Equipment zit niet in onderhoud!"
                 );
             equipmentRepo.EquipmentVerwijderOnderhoud(equipment);
         }
@@ -106,6 +129,7 @@ namespace FitnessBL.Services
                 throw new ServiceException(
                     "EquipmentService - EquipmentInOnderhoud - equipment bestaat niet op id"
                 );
+
             return equipmentRepo.EquipmentInOnderhoud(equipment);
         }
 
@@ -113,7 +137,7 @@ namespace FitnessBL.Services
         {
             if (date < DateTime.Now)
                 throw new ServiceException(
-                    "EquipmentServie - GetAvailableEquipment - Date moet in de toekost liggen om te zien of dit equipment in de toekomst al gebruikt wordt!"
+                    "EquipmentServie - GetAvailableEquipment - Date moet in de toekomst liggen om te zien of dit equipment in de toekomst al gebruikt wordt!"
                 );
             if (timeSlot == null)
                 throw new ServiceException(

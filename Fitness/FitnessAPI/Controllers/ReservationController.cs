@@ -90,5 +90,24 @@ namespace FitnessAPI.Controllers
                 return StatusCode(500, $"Er is een fout opgetreden: {ex.Message}");
             }
         }
+
+        [HttpDelete("/ReservationVerwijderen/{id}")]
+        public IActionResult DeleteReservation(int id)
+        {
+            try
+            {
+                Reservation reservation = reservationService.GetReservationId(id);
+                reservationService.DeleteReservation(reservation);
+                return Ok("De reservation is succesvol verwijderd!");
+            }
+            catch (RepoException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

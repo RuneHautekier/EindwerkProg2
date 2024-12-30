@@ -20,14 +20,11 @@ namespace FitnessBL.Services
 
         public Time_slot GetTime_slotId(int id)
         {
-            try
-            {
-                return time_slotRepo.GetTime_slotId(id);
-            }
-            catch (Exception ex)
-            {
-                throw new ServiceException("Time_slotService - GetTime_slotId");
-            }
+            if (id < 1 || id > 14)
+                throw new ServiceException(
+                    "Time_slotService - GetTime_slotId - Id moet tussen 1 en 14 liggen!"
+                );
+            return time_slotRepo.GetTime_slotId(id);
         }
     }
 }

@@ -9,44 +9,37 @@ namespace FitnessBL.Services
         private IReservationRepo reservationRepo;
         private MemberService memberService;
         private EquipmentService equipmentService;
-        private Time_slotService timeSlotService;
-        private IEquipmentRepo equipmentRepo;
 
         public ReservationService(
             IReservationRepo reservationRepo,
             MemberService memberService,
-            EquipmentService equipmentService,
-            Time_slotService timeSlotService
+            EquipmentService equipmentService
         )
         {
             this.reservationRepo = reservationRepo;
             this.memberService = memberService;
             this.equipmentService = equipmentService;
-            this.timeSlotService = timeSlotService;
         }
 
         public Reservation GetReservationId(int id)
         {
-            try
-            {
-                return reservationRepo.GetReservationId(id);
-            }
-            catch (Exception ex)
-            {
-                throw new ServiceException("ReservationService - GetReservationId");
-            }
+            if (id <= 0)
+                throw new ServiceException(
+                    "ReservationService - GetReservationId - Voer een geldig id in >0!"
+                );
+
+            Reservation reservation = reservationRepo.GetReservationId(id);
+            if (reservation == null)
+                throw new ServiceException(
+                    "ReservationService - GetReservationId - Er is geen Reservation met dit Id "
+                );
+
+            return reservation;
         }
 
         public int GetNieuwReservationId()
         {
-            try
-            {
-                return reservationRepo.GetNieuwReservationId();
-            }
-            catch (Exception ex)
-            {
-                throw new ServiceException("ReservationService - GetNieuwReservationId");
-            }
+            return reservationRepo.GetNieuwReservationId();
         }
 
         public Reservation AddReservation(Reservation reservation)
@@ -89,17 +82,6 @@ namespace FitnessBL.Services
                 }
             }
 
-            //Controleerd
-
-            if (
-                memberService.GetAantalGeboekteTijdsloten(reservation.Member, reservation.Date) == 4
-            )
-            {
-                throw new MemberException(
-                    "Een member mag maximaal 4 TimeSlots op een dag reserveren"
-                );
-            }
-
             // Controleerd of een gebruiker nog TimeSlots over heeft om een reservatie te reserveren
             int geboekteTijdsloten = memberService.GetAantalGeboekteTijdsloten(
                 reservation.Member,
@@ -119,6 +101,7 @@ namespace FitnessBL.Services
                 || slot.Part_of_day.Equals("afternoon")
                 || slot.Part_of_day.Equals("evening")
             );
+
             if (!sameSession)
             {
                 throw new Time_SlotException(
@@ -132,26 +115,11 @@ namespace FitnessBL.Services
             return reservation;
         }
 
-        public IEnumerable<Reservation> GetFutureReservationsForEquipment(int equipmentId)
-        {
-            IEnumerable<Reservation> reservations =
-                reservationRepo.GetFutureReservationsForEquipment(equipmentId);
-            if (!reservations.Any())
-            {
-                throw new ServiceException(
-                    "ReservationService - GetFutureReservationsForEquiment - Dit Equipment heeft geen reservaties in de toekosmt!"
-                );
-            }
-            return reservations;
-        }
-
         public void UpdateReservationsWithNewEquipment(Equipment equipmentInOnderhoud)
         {
             // 1. Haal toekomstige reserveringen op waarin het equipment voorkomt
             IEnumerable<Reservation> reservations =
-                reservationRepo.GetFutureReservationsForEquipment(
-                    equipmentInOnderhoud.Equipment_id
-                );
+                equipmentService.GetFutureReservationsForEquipment(equipmentInOnderhoud);
 
             Equipment oudEquipment = equipmentService.GetEquipmentId(
                 equipmentInOnderhoud.Equipment_id
@@ -189,6 +157,15 @@ namespace FitnessBL.Services
                 // 4. Sla de gewijzigde reservering op
                 reservationRepo.UpdateReservationEquipment(reservation, oudEquipment);
             }
+        }
+
+        public void DeleteReservation(Reservation reservation)
+        {
+            if (reservation == null)
+                throw new ServiceException(
+                    "ReservationService - DeleteReservation - Reservation bestaat niet met dit id!"
+                );
+            reservationRepo.DeleteReservation(reservation);
         }
     }
 }
