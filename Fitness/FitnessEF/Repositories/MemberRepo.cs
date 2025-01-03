@@ -47,6 +47,38 @@ namespace FitnessEF.Repositories
             }
         }
 
+        public IEnumerable<Member> GetMemberNaam(string vn, string ln)
+        {
+            try
+            {
+                IEnumerable<MemberEF> memberEFs = ctx
+                    .members.Where(x => x.first_name.Contains(vn))
+                    .Where(x => x.last_name.Contains(ln))
+                    .AsNoTracking()
+                    .ToList();
+
+                List<Member> members = new List<Member>();
+
+                if (memberEFs == null)
+                {
+                    return new List<Member>();
+                }
+                else
+                {
+                    foreach (MemberEF mEF in memberEFs)
+                    {
+                        members.Add(MapMember.MapToDomain(mEF));
+                    }
+
+                    return members;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - GetMemberNaam", ex);
+            }
+        }
+
         public IEnumerable<TrainingSession> GetTrainingSessionsMember(Member member)
         {
             try
@@ -120,6 +152,44 @@ namespace FitnessEF.Repositories
             catch (Exception ex)
             {
                 throw new RepoException("MemberRepo - GetProgramListMember");
+            }
+        }
+
+        public IEnumerable<Reservation> GetReservationsMember(Member member)
+        {
+            try
+            {
+                List<ReservationEF> reservationEFs = ctx
+                    .reservation.Where(p => p.member_id == member.Member_id)
+                    .Include(m => m.Member)
+                    .Include(ts => ts.Time_slot)
+                    .Include(e => e.Equipment)
+                    .AsNoTracking()
+                    .ToList();
+
+                if (reservationEFs.Count == 0)
+                {
+                    return new List<Reservation>();
+                }
+
+                // Stap 2: Groepeer de reserveringen per reservation_id
+                List<IGrouping<int, ReservationEF>> groupedReservations = reservationEFs
+                    .GroupBy(rs => rs.reservation_id) // Groepeer op basis van reservation_id
+                    .ToList(); // Zet het resultaat om naar een lijst van groepen
+
+                // Stap 3: Map de gegroepeerde reserveringen naar het Reservation-domeinmodel
+                List<Reservation> reservations = new List<Reservation>();
+
+                foreach (IGrouping<int, ReservationEF> group in groupedReservations)
+                {
+                    reservations.Add(MapReservation.MapToDomain(group.ToList())); // Map naar je domeinmodel
+                }
+
+                return reservations;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("MemberRepo - GetReservationsMember");
             }
         }
 

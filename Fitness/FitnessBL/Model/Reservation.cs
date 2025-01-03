@@ -45,6 +45,8 @@ namespace FitnessBL.Model
             }
         }
 
+        public Reservation() { }
+
         public Reservation(
             DateTime datum,
             Member klant,

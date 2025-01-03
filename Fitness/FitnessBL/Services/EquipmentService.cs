@@ -150,5 +150,19 @@ namespace FitnessBL.Services
 
             return equipmentRepo.GetAvailableEquipment(date, timeSlot, DeviceType);
         }
+
+        public IEnumerable<Equipment> GetAllAvailableEquipment(DateTime date, int timeSlotId)
+        {
+            if (date < DateTime.Now)
+                throw new ServiceException(
+                    "EquipmentService - GetAvailableEquipment - Date moet in de toekomst liggen om te zien of dit equipment in de toekomst al gebruikt wordt!"
+                );
+            if (timeSlotId <= 0 || timeSlotId > 14)
+                throw new ServiceException(
+                    "EquipmentService - GetAvailableEquipment - TimeSlot id ligt niet in de range!"
+                );
+
+            return equipmentRepo.GetAllAvailableEquipment(date, timeSlotId);
+        }
     }
 }

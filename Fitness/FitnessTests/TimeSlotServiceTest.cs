@@ -25,12 +25,11 @@ namespace FitnessTests
         [Fact]
         public void GetTime_slotId_IdOutOfRange_ThrowsServiceException()
         {
-            // Act
+            // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
                 () => timeSlotService.GetTime_slotId(15)
             );
 
-            // Assert
             exception = Assert.Throws<ServiceException>(() => timeSlotService.GetTime_slotId(0));
             Assert.Equal(
                 "Time_slotService - GetTime_slotId - Id moet tussen 1 en 14 liggen!",
@@ -43,6 +42,8 @@ namespace FitnessTests
         {
             // Arrange
             Time_slot timeSlot = new Time_slot(1, 8, 9, "Morning");
+
+            // Mocks
             timeSlotRepo.Setup(repo => repo.GetTime_slotId(1)).Returns(timeSlot);
 
             // Act

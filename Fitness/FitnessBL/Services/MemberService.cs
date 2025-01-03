@@ -27,6 +27,16 @@ namespace FitnessBL.Services
             return members;
         }
 
+        public IEnumerable<Member> GetMemberNaam(string vn, string ln)
+        {
+            IEnumerable<Member> members = memberRepo.GetMemberNaam(vn, ln);
+            if (members.Count() == 0)
+                throw new ServiceException(
+                    "MemberService - GetMemberNaam - Er is geen member met deze naam!"
+                );
+            return members;
+        }
+
         public IEnumerable<TrainingSession> GetTrainingSessionsMember(Member member)
         {
             if (member == null)
@@ -64,6 +74,25 @@ namespace FitnessBL.Services
                     "MemberService - GetProgramListMember - Deze member is nog voor geen enkel Program ingeschreven!"
                 );
             return programList;
+        }
+
+        public IEnumerable<Reservation> GetReservationsMember(Member member)
+        {
+            if (member == null)
+                throw new ServiceException("MemberService - GetProgramListMember - Member is null");
+            if (!memberRepo.IsMemberId(member))
+                throw new ServiceException(
+                    "MemberService - GetProgramListMember - Er bestaat geen member met dit id!"
+                );
+
+            IEnumerable<Reservation> reservations = new List<Reservation>();
+            reservations = memberRepo.GetReservationsMember(member);
+            if (!reservations.Any())
+                throw new ServiceException(
+                    "MemberService - GetReservationsMember - Deze member heeft nog geen enkele reservations!"
+                );
+
+            return reservations;
         }
 
         public IEnumerable<TrainingSession> GetTrainingSessionsMemberInMaandInJaar(

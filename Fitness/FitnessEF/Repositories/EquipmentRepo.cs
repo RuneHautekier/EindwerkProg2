@@ -246,6 +246,37 @@ namespace FitnessEF.Repositories
             }
         }
 
+        public IEnumerable<Equipment> GetAllAvailableEquipment(DateTime date, int timeSlotID)
+        {
+            List<EquipmentEF> availableEquipmentEF = ctx
+                .equipment.Where(e =>
+                    !ctx.reservation.Any(r =>
+                        r.equipment_id == e.equipment_id // Controleer of het equipment niet al gereserveerd is
+                        && r.date == date
+                        && r.time_slot_id == timeSlotID
+                    ) && !ctx.equipmentOnderhoud.Any(eo => eo.equipment_id == e.equipment_id)
+                )
+                .AsNoTracking()
+                .ToList();
+
+            if (availableEquipmentEF.Count() == 0)
+            {
+                return new List<Equipment>();
+            }
+
+            List<Equipment> availableEquipment = new List<Equipment>();
+            foreach (EquipmentEF equipmentEF in availableEquipmentEF)
+            {
+                Equipment equipment = new Equipment(
+                    equipmentEF.equipment_id,
+                    equipmentEF.device_type
+                );
+                availableEquipment.Add(equipment);
+            }
+
+            return availableEquipment;
+        }
+
         public IDbContextTransaction BeginTransaction()
         {
             return ctx.Database.BeginTransaction();

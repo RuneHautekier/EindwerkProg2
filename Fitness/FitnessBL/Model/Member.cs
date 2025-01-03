@@ -133,6 +133,8 @@ namespace FitnessBL.Model
             }
         }
 
+        public Member() { }
+
         public Member(
             int member_id,
             string firstName,
@@ -171,6 +173,11 @@ namespace FitnessBL.Model
             Birthday = geboorteDatum;
             Interests = interesses;
             MemberType = type;
+        }
+
+        public override string? ToString()
+        {
+            return $"MemberID: {Member_id} \n Name: {FirstName} {LastName} \n Email: {Email} \n Address: {Address} \n Birthday: {Birthday}";
         }
 
         public void VoegIntresseToe(string interesse)

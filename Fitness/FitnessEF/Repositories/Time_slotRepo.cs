@@ -27,6 +27,27 @@ namespace FitnessEF.Repositories
             ctx.ChangeTracker.Clear();
         }
 
+        public IEnumerable<Time_slot> GetTimeSlots()
+        {
+            try
+            {
+                IEnumerable<Time_slotEF> tsEFs = ctx.time_slot.Select(x => x).ToList();
+
+                List<Time_slot> timeSlots = new List<Time_slot>();
+                foreach (Time_slotEF tsEF in tsEFs)
+                {
+                    Time_slot ts = MapTime_slot.MapToDomain(tsEF);
+                    timeSlots.Add(ts);
+                }
+
+                return timeSlots;
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("Time_slotRepo - GetTimeSlots");
+            }
+        }
+
         public Time_slot GetTime_slotId(int id)
         {
             try

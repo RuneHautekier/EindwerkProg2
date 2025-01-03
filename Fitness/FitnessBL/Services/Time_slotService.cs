@@ -18,6 +18,12 @@ namespace FitnessBL.Services
             this.time_slotRepo = time_slotRepo;
         }
 
+        public IEnumerable<Time_slot> GetTimeSlots()
+        {
+            IEnumerable<Time_slot> timeSlots = time_slotRepo.GetTimeSlots();
+            return timeSlots;
+        }
+
         public Time_slot GetTime_slotId(int id)
         {
             if (id < 1 || id > 14)

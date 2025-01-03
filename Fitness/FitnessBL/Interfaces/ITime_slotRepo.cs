@@ -9,6 +9,7 @@ namespace FitnessBL.Interfaces
 {
     public interface ITime_slotRepo
     {
+        IEnumerable<Time_slot> GetTimeSlots();
         Time_slot GetTime_slotId(int id);
     }
 }

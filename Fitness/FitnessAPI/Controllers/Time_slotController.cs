@@ -15,6 +15,13 @@ namespace FitnessAPI.Controllers
             this.time_slotService = time_slotService;
         }
 
+        [HttpGet("/LijstTimeSlots")]
+        public IActionResult GetTimeSlots()
+        {
+            IEnumerable<Time_slot> timeSlots = time_slotService.GetTimeSlots();
+            return Ok(timeSlots);
+        }
+
         [HttpGet("/Time_slotViaId/{id}")]
         public IActionResult GetTime_slotId(int id)
         {

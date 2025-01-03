@@ -91,6 +91,44 @@ namespace FitnessAPI.Controllers
             }
         }
 
+        [HttpPatch("/ReservationAanpassen/{id}")]
+        public IActionResult UpdateReservationTimeSlots(
+            int id,
+            [FromBody] List<TimeslotEquipmentDTO> tseDTOs
+        )
+        {
+            try
+            {
+                Reservation reservation = reservationService.GetReservationId(id);
+
+                Dictionary<Time_slot, Equipment> dic = new Dictionary<Time_slot, Equipment>();
+                foreach (TimeslotEquipmentDTO tseDTO in tseDTOs)
+                {
+                    Time_slot ts = timeSlotService.GetTime_slotId(tseDTO.Time_slot_id);
+                    Equipment e = equipmentService.GetEquipmentId(tseDTO.Equipment_id);
+                    dic.Add(ts, e);
+                }
+
+                Reservation geupdateReservation = new Reservation(
+                    reservation.Reservation_id,
+                    reservation.Date,
+                    reservation.Member,
+                    dic
+                );
+
+                reservationService.UpdateReservationTimeSlots(reservation, geupdateReservation);
+                return CreatedAtAction(
+                    nameof(GetReservationID), // Specify the action name of the "Get" endpoint
+                    new { id = geupdateReservation.Reservation_id }, // Parameter voor de Get eindpoint
+                    geupdateReservation // Return the created gebruiker object
+                );
+            }
+            catch (ReservationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpDelete("/ReservationVerwijderen/{id}")]
         public IActionResult DeleteReservation(int id)
         {

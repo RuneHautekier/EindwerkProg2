@@ -21,5 +21,10 @@ namespace FitnessBL.Model
             End_time = endDatum;
             Part_of_day = dagDeel;
         }
+
+        public override string? ToString()
+        {
+            return $"Id: {Time_slot_id}, Hours: {Start_time} - {End_time}";
+        }
     }
 }

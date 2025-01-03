@@ -72,6 +72,18 @@ namespace FitnessEF.Repositories
             }
         }
 
+        public bool IsReservationId(Reservation reservation)
+        {
+            try
+            {
+                return ctx.reservation.Any(x => x.reservation_id == reservation.Reservation_id);
+            }
+            catch (Exception ex)
+            {
+                throw new RepoException("ReservationRepo - IsReservationId", ex);
+            }
+        }
+
         public Reservation AddReservation(Reservation reservation)
         {
             try
@@ -115,35 +127,35 @@ namespace FitnessEF.Repositories
             }
         }
 
-        public void UpdateReservationEquipment(Reservation reservation, Equipment oudEquipment)
-        {
-            try
-            {
-                List<ReservationEF> rsEFs = MapReservation.MapToEF(reservation);
+        //public void UpdateReservationEquipment(Reservation reservation, Equipment oudEquipment)
+        //{
+        //    try
+        //    {
+        //        List<ReservationEF> rsEFs = MapReservation.MapToEF(reservation);
 
-                ReservationEF reservationEF1 = rsEFs.First();
-                ctx.reservation.Update(reservationEF1);
+        //        ReservationEF reservationEF1 = rsEFs.First();
+        //        ctx.reservation.Update(reservationEF1);
 
-                if (rsEFs.Count() == 2)
-                {
-                    ReservationEF reservationEF2 = rsEFs.Last();
-                    ctx.reservation.Update(reservationEF2);
-                }
+        //        if (rsEFs.Count() == 2)
+        //        {
+        //            ReservationEF reservationEF2 = rsEFs.Last();
+        //            ctx.reservation.Update(reservationEF2);
+        //        }
 
-                SaveAndClear();
+        //        SaveAndClear();
 
-                EquipmentOnderhoudEF equipmentOnderhoudEF = new EquipmentOnderhoudEF(
-                    oudEquipment.Equipment_id
-                );
-                ctx.equipmentOnderhoud.Add(equipmentOnderhoudEF);
+        //        EquipmentOnderhoudEF equipmentOnderhoudEF = new EquipmentOnderhoudEF(
+        //            oudEquipment.Equipment_id
+        //        );
+        //        ctx.equipmentOnderhoud.Add(equipmentOnderhoudEF);
 
-                SaveAndClear();
-            }
-            catch (Exception ex)
-            {
-                throw new RepoException("Error in UpdateReservationEquipment", ex);
-            }
-        }
+        //        SaveAndClear();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new RepoException("Error in UpdateReservationEquipment", ex);
+        //    }
+        //}
 
         public void DeleteReservation(Reservation reservation)
         {

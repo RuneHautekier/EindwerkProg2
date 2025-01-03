@@ -34,6 +34,20 @@ namespace FitnessAPI.Controllers
             }
         }
 
+        [HttpGet("/MemberViaNaam/{voornaam}/{achternaam}")]
+        public IActionResult GetMemberNaam(string voornaam, string achternaam)
+        {
+            try
+            {
+                IEnumerable<Member> members = memberService.GetMemberNaam(voornaam, achternaam);
+                return Ok(members);
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("/GetTrainingSessionsMember/{id}")]
         public IActionResult GetTrainingSessionsMember(int id)
         {
@@ -118,6 +132,49 @@ namespace FitnessAPI.Controllers
                 }
 
                 return Ok(programDTOs);
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("/ReservationsMember/{id}")]
+        public IActionResult GetReservationsMember(int id)
+        {
+            try
+            {
+                Member member = memberService.GetMemberId(id);
+                IEnumerable<Reservation> reservations = memberService.GetReservationsMember(member);
+
+                List<ReservationDTO> reservationDTOs = new List<ReservationDTO>();
+                List<TimeslotEquipmentDTO> tseDTOs = new List<TimeslotEquipmentDTO>();
+                foreach (Reservation r in reservations)
+                {
+                    foreach (KeyValuePair<Time_slot, Equipment> kvp in r.TimeslotEquipment)
+                    {
+                        TimeslotEquipmentDTO tseDTO = new TimeslotEquipmentDTO
+                        {
+                            Time_slot_id = kvp.Key.Time_slot_id,
+                            Equipment_id = kvp.Value.Equipment_id,
+                        };
+
+                        tseDTOs.Add(tseDTO);
+                    }
+
+                    ReservationDTO rDTO = new ReservationDTO
+                    {
+                        ReservationId = r.Reservation_id,
+                        MemberId = r.Member.Member_id,
+                        Date = r.Date,
+                        EquipmentPerTimeslot = tseDTOs
+                    };
+
+                    reservationDTOs.Add(rDTO);
+                    tseDTOs = new List<TimeslotEquipmentDTO>();
+                }
+
+                return Ok(reservationDTOs);
             }
             catch (ServiceException ex)
             {

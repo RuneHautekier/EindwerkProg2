@@ -15,18 +15,29 @@ namespace FitnessTests
     {
         private readonly Mock<IProgramRepo> programRepo;
         private readonly ProgramService programService;
+        private Program program;
 
         public ProgramServiceTest()
         {
             programRepo = new Mock<IProgramRepo>();
             programService = new ProgramService(programRepo.Object);
+            program = new Program
+            {
+                ProgramCode = "P999",
+                Name = "Yoga Basics",
+                Target = "Beginners",
+                Startdate = DateTime.Now,
+                Max_members = 10
+            };
         }
 
         [Fact]
         public void GetProgramCode_InvalidProgramCode_ThrowsServiceException()
         {
             // Arrange
-            string programCode = "P999";
+            string programCode = "P998";
+
+            // Mocks
             programRepo.Setup(repo => repo.GetProgramCode(programCode)).Returns((Program)null);
 
             // Act
@@ -45,23 +56,17 @@ namespace FitnessTests
         public void GetProgramCode_ValidProgramCode_ReturnsProgram()
         {
             // Arrange
-            string programCode = "P123";
-            Program expectedProgram = new Program
-            {
-                ProgramCode = programCode,
-                Name = "Yoga Basics",
-                Target = "Beginners",
-                Startdate = DateTime.Now,
-                Max_members = 10
-            };
-            programRepo.Setup(repo => repo.GetProgramCode(programCode)).Returns(expectedProgram);
+            string programCode = "P999";
+
+            // Mocks
+            programRepo.Setup(repo => repo.GetProgramCode(programCode)).Returns(program);
 
             // Act
             Program result = programService.GetProgramCode(programCode);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(expectedProgram, result);
+            Assert.Equal(program, result);
         }
 
         [Fact]
@@ -81,20 +86,12 @@ namespace FitnessTests
         [Fact]
         public void AddProgram_ExistingProgram_ThrowsServiceException()
         {
-            // Arrange
-            Program existingProgram = new Program
-            {
-                ProgramCode = "P123",
-                Name = "Yoga Basics",
-                Target = "Beginners",
-                Startdate = DateTime.Now,
-                Max_members = 10
-            };
-            programRepo.Setup(repo => repo.BestaatProgram(existingProgram)).Returns(true);
+            // Mocks
+            programRepo.Setup(repo => repo.BestaatProgram(program)).Returns(true);
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => programService.AddProgram(existingProgram)
+                () => programService.AddProgram(program)
             );
 
             Assert.Equal(
@@ -115,6 +112,8 @@ namespace FitnessTests
                 Startdate = DateTime.Now,
                 Max_members = 10
             };
+
+            // Mocks
             programRepo.Setup(repo => repo.BestaatProgram(newProgram)).Returns(false);
             programRepo.Setup(repo => repo.AddProgram(newProgram));
 
@@ -152,6 +151,8 @@ namespace FitnessTests
                 Startdate = DateTime.Now,
                 Max_members = 10
             };
+
+            // Mocks
             programRepo.Setup(repo => repo.BestaatProgram(nonExistingProgram)).Returns(false);
 
             // Act & Assert
@@ -168,38 +169,28 @@ namespace FitnessTests
         [Fact]
         public void UpdateProgram_ValidProgram_UpdatesAndReturnsProgram()
         {
-            // Arrange
-            Program existingProgram = new Program
-            {
-                ProgramCode = "P123",
-                Name = "Yoga Basics",
-                Target = "Beginners",
-                Startdate = DateTime.Now,
-                Max_members = 10
-            };
-
             Program updatedProgram = new Program
             {
-                ProgramCode = "P123",
+                ProgramCode = "P999",
                 Name = "Advanced Yoga",
                 Target = "Intermediate",
-                Startdate = existingProgram.Startdate,
+                Startdate = program.Startdate,
                 Max_members = 15
             };
 
+            // Mocks
             programRepo
-                .Setup(repo => repo.BestaatProgram(It.Is<Program>(p => p.ProgramCode == "P123")))
+                .Setup(repo => repo.BestaatProgram(It.Is<Program>(p => p.ProgramCode == "P999")))
                 .Returns(true);
 
-            // Stel in dat de UpdateProgram-methode van de repo wordt aangeroepen
             programRepo
                 .Setup(repo => repo.UpdateProgram(It.IsAny<Program>()))
                 .Callback<Program>(p =>
                 {
                     // Simuleer de update van het programma
-                    existingProgram.Name = p.Name;
-                    existingProgram.Target = p.Target;
-                    existingProgram.Max_members = p.Max_members;
+                    program.Name = p.Name;
+                    program.Target = p.Target;
+                    program.Max_members = p.Max_members;
                 });
 
             // Act
@@ -207,9 +198,9 @@ namespace FitnessTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("Advanced Yoga", existingProgram.Name);
-            Assert.Equal("Intermediate", existingProgram.Target);
-            Assert.Equal(15, existingProgram.Max_members);
+            Assert.Equal("Advanced Yoga", program.Name);
+            Assert.Equal("Intermediate", program.Target);
+            Assert.Equal(15, program.Max_members);
         }
     }
 }

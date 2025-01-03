@@ -125,5 +125,21 @@ namespace FitnessAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("/AllAvailableEquipment/{dateAsString}/{timeSlotId}")]
+        public IActionResult GetAllAvailableEquipment(string dateAsString, int timeSlotId)
+        {
+            try
+            {
+                DateTime date = DateTime.Parse(dateAsString);
+                IEnumerable<Equipment> availableEquipments =
+                    equipmentService.GetAllAvailableEquipment(date, timeSlotId);
+                return Ok(availableEquipments);
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

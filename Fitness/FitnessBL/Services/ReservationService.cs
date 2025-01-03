@@ -96,11 +96,11 @@ namespace FitnessBL.Services
             }
 
             // Controleerd of de TimeSlots in dezelfde dagindeling vallen
-            bool sameSession = reservation.TimeslotEquipment.Keys.All(slot =>
-                slot.Part_of_day.Equals("morning")
-                || slot.Part_of_day.Equals("afternoon")
-                || slot.Part_of_day.Equals("evening")
-            );
+            bool sameSession =
+                reservation
+                    .TimeslotEquipment.Keys.Select(slot => slot.Part_of_day)
+                    .Distinct()
+                    .Count() == 1;
 
             if (!sameSession)
             {
@@ -126,8 +126,12 @@ namespace FitnessBL.Services
             );
             Equipment alternativeEquipment = null;
 
+            //IEnumerable<Reservation> oudeReservations = reservations;
+
             foreach (Reservation reservation in reservations)
             {
+                Reservation oudeReservation = reservation;
+
                 foreach (Time_slot timeslot in reservation.TimeslotEquipment.Keys.ToList())
                 {
                     if (
@@ -155,13 +159,42 @@ namespace FitnessBL.Services
                 }
 
                 // 4. Sla de gewijzigde reservering op
-                reservationRepo.UpdateReservationEquipment(reservation, oudEquipment);
+                reservationRepo.DeleteReservation(oudeReservation);
+                reservationRepo.AddReservation(reservation);
             }
+        }
+
+        public void UpdateReservationTimeSlots(
+            Reservation reservation,
+            Reservation geUpdateReservation
+        )
+        {
+            if (reservation == null)
+                throw new ServiceException(
+                    "ReservationService - UpdateReservationTimeSlots - reservation is null!"
+                );
+            if (!reservationRepo.IsReservationId(reservation))
+                throw new ServiceException(
+                    "ReservationService - UpdateReservationTimeSlots - Er is geen reservation met dit id!"
+                );
+
+            if (geUpdateReservation == null)
+                throw new ServiceException(
+                    "ReservationService - UpdateReservationTimeSlots - reservation is null!"
+                );
+
+            reservationRepo.DeleteReservation(reservation);
+            reservationRepo.AddReservation(geUpdateReservation);
         }
 
         public void DeleteReservation(Reservation reservation)
         {
             if (reservation == null)
+                throw new ServiceException(
+                    "ReservationService - UpdateReservationTimeSlots - reservation is null!"
+                );
+
+            if (!reservationRepo.IsReservationId(reservation))
                 throw new ServiceException(
                     "ReservationService - DeleteReservation - Reservation bestaat niet met dit id!"
                 );

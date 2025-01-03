@@ -21,7 +21,7 @@ namespace FitnessBL.Interfaces
         bool EquipmentInOnderhoud(Equipment equipment);
         Equipment GetAvailableEquipment(DateTime date, Time_slot timeSlot, string DeviceType);
         IEnumerable<Reservation> GetFutureReservationsForEquipment(Equipment equipment);
-
+        IEnumerable<Equipment> GetAllAvailableEquipment(DateTime date, int timeSlotID);
         IDbContextTransaction BeginTransaction();
     }
 }

@@ -17,16 +17,49 @@ namespace FitnessTests
         private readonly Mock<IMemberRepo> memberRepo;
         private readonly MemberService memberService;
 
+        private Member member1;
+        private Cyclingsession cyclingSession;
+        private Runningsession_main runningsession;
+        private DateTime date;
+
         public MemberServiceTest()
         {
             memberRepo = new Mock<IMemberRepo>();
             memberService = new MemberService(memberRepo.Object);
+
+            member1 = new Member(
+                1,
+                "John",
+                "Doe",
+                "john.doe@example.com",
+                "Some Street 123",
+                new DateTime(1990, 1, 1),
+                new List<string> { "Fitness", "Swimming" },
+                TypeKlant.Gold
+            );
+
+            cyclingSession = new Cyclingsession(
+                1,
+                DateTime.Now,
+                60,
+                10,
+                300,
+                80,
+                100,
+                "Endurance",
+                null,
+                member1
+            );
+
+            runningsession = new Runningsession_main(1, DateTime.Now, 60, 10, member1);
+
+            date = new DateTime(2024, 1, 1);
         }
 
         [Fact]
         public void GetMembers_WhenNoMembers_ReturnsServiceException()
         {
-            // Arrange
+            // Mocks
             memberRepo.Setup(repo => repo.GetMembers()).Returns(new List<Member>());
 
             // Act & Assert
@@ -40,17 +73,6 @@ namespace FitnessTests
         public void GetMembers_WhenMembersExist_ReturnsMembers()
         {
             // Arrange
-            Member member1 = new Member(
-                1,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Fitness", "Swimming" },
-                TypeKlant.Gold
-            );
-
             Member member2 = new Member(
                 2,
                 "Jane",
@@ -95,22 +117,12 @@ namespace FitnessTests
         [Fact]
         public void GetTrainingSessionsMember_WhenMemberDoesNotExist_ThrowsServiceException()
         {
-            // Arrange
-            Member member = new Member(
-                55,
-                "Jane",
-                "Doe",
-                "jane.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Running" },
-                TypeKlant.Silver
-            );
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(false);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(false);
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.GetTrainingSessionsMember(member)
+                () => memberService.GetTrainingSessionsMember(member1)
             );
             Assert.Equal(
                 "MemberService - GetTrainingSessionsMember - member bestaat niet met dit id!",
@@ -122,23 +134,14 @@ namespace FitnessTests
         public void GetTrainingSessionsMember_WhenMemberHasNoSessions_ThrowsServiceException()
         {
             // Arrange
-            Member member = new Member(
-                1,
-                "Jane",
-                "Doe",
-                "jane.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Running" },
-                TypeKlant.Silver
-            );
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true);
-
             List<TrainingSession> trainingSessions = new List<TrainingSession>();
+
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true);
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.GetTrainingSessionsMember(member)
+                () => memberService.GetTrainingSessionsMember(member1)
             );
             Assert.Equal(
                 "MemberService - GetTrainingSessionsMember - Deze member heeft nog geen TrainingSessions!",
@@ -150,49 +153,19 @@ namespace FitnessTests
         public void GetTrainingSessionsMember_WhenSessionsExist_ReturnsTrainingSessions()
         {
             // Arrange
-            Member member = new Member(
-                1,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Fitness" },
-                TypeKlant.Gold
-            );
-            Cyclingsession cyclingSession = new Cyclingsession(
-                1,
-                DateTime.Now,
-                60,
-                10,
-                300,
-                80,
-                100,
-                "Endurance",
-                null,
-                member
-            );
-
-            Runningsession_main runningsession = new Runningsession_main(
-                1,
-                DateTime.Now,
-                60,
-                10,
-                member
-            );
-
             List<TrainingSession> trainingSessions = new List<TrainingSession>();
             trainingSessions.Add(cyclingSession);
             trainingSessions.Add(runningsession);
 
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true);
 
             memberRepo
-                .Setup(repo => repo.GetTrainingSessionsMember(member))
+                .Setup(repo => repo.GetTrainingSessionsMember(member1))
                 .Returns(trainingSessions);
 
             // Act
-            var result = memberService.GetTrainingSessionsMember(member);
+            IEnumerable<TrainingSession> result = memberService.GetTrainingSessionsMember(member1);
 
             // Assert
             Assert.NotEmpty(result);
@@ -217,22 +190,12 @@ namespace FitnessTests
         [Fact]
         public void GetProgramListMember_WhenMemberDoesNotExist_ThrowsServiceException()
         {
-            // Arrange
-            Member member = new Member(
-                55,
-                "Jane",
-                "Doe",
-                "jane.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Running" },
-                TypeKlant.Silver
-            );
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(false);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(false);
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.GetProgramListMember(member)
+                () => memberService.GetProgramListMember(member1)
             );
             Assert.Equal(
                 "MemberService - GetProgramListMember - Er bestaat geen member met dit id!",
@@ -243,24 +206,14 @@ namespace FitnessTests
         [Fact]
         public void GetProgramListMember_WhenMemberHasNoPrograms_ThrowsServiceException()
         {
-            // Arrange
-            Member member = new Member(
-                1,
-                "Jane",
-                "Doe",
-                "jane.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Running" },
-                TypeKlant.Silver
-            );
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true);
 
             List<Program> programs = new List<Program>();
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.GetProgramListMember(member)
+                () => memberService.GetProgramListMember(member1)
             );
             Assert.Equal(
                 "MemberService - GetProgramListMember - Deze member is nog voor geen enkel Program ingeschreven!",
@@ -272,16 +225,6 @@ namespace FitnessTests
         public void GetProgramListMember_WhenMemberHasPrograms_ReturnsPrograms()
         {
             // Arrange
-            Member member = new Member(
-                1,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Fitness" },
-                TypeKlant.Gold
-            );
 
             Program program1 = new Program(
                 "Prog2",
@@ -303,12 +246,12 @@ namespace FitnessTests
             programs.Add(program1);
             programs.Add(program2);
 
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true);
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true);
 
-            memberRepo.Setup(repo => repo.GetProgramListMember(member)).Returns(programs);
+            memberRepo.Setup(repo => repo.GetProgramListMember(member1)).Returns(programs);
 
             // Act
-            var result = memberService.GetProgramListMember(member);
+            IEnumerable<Program> result = memberService.GetProgramListMember(member1);
 
             // Assert
             Assert.NotEmpty(result);
@@ -338,23 +281,14 @@ namespace FitnessTests
         public void GetTrainingSessionsMemberInMaandInJaar_MemberDoesNotExist_ThrowsServiceException()
         {
             // Arrange
-            Member member = new Member(
-                55,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
             DateTime date = new DateTime(2024, 1, 1);
 
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(false); // Simuleer dat het lid niet bestaat
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(false); // Simuleer dat het lid niet bestaat
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.GetTrainingSessionsMemberInMaandInJaar(member, date)
+                () => memberService.GetTrainingSessionsMemberInMaandInJaar(member1, date)
             );
             Assert.Equal(
                 "MemberService - TrainingSessionsMemberPerMaandInJaar - member bestaat niet met dit id!",
@@ -366,26 +300,17 @@ namespace FitnessTests
         public void GetTrainingSessionsMemberInMaandInJaar_NoTrainingSessions_ThrowsServiceException()
         {
             // Arrange
-            Member member = new Member(
-                1,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
             DateTime date = new DateTime(2024, 1, 1);
 
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true); // Simuleer dat het lid bestaat
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true); // Simuleer dat het lid bestaat
             memberRepo
-                .Setup(repo => repo.GetTrainingSessionsMemberInMaandInJaar(member, date))
+                .Setup(repo => repo.GetTrainingSessionsMemberInMaandInJaar(member1, date))
                 .Returns(new List<TrainingSession>()); // Simuleer dat er geen trainingssessies zijn
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.GetTrainingSessionsMemberInMaandInJaar(member, date)
+                () => memberService.GetTrainingSessionsMemberInMaandInJaar(member1, date)
             );
             Assert.Equal(
                 $"MemberService - TrainingSessionsMemberPerMaandInJaar - Deze member heeft geen TrainingSessions in maand {date.Month} in jaar {date.Year}!",
@@ -397,42 +322,21 @@ namespace FitnessTests
         public void GetTrainingSessionsMemberInMaandInJaar_ValidMember_ReturnsTrainingSessions()
         {
             // Arrange
-            Member member = new Member(
-                1,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-            DateTime date = new DateTime(2024, 1, 1);
             List<TrainingSession> expectedSessions = new List<TrainingSession>
             {
-                new Cyclingsession(
-                    1,
-                    date,
-                    60,
-                    200,
-                    250,
-                    80,
-                    100,
-                    "Endurance",
-                    "Good session",
-                    member
-                ),
-                new Runningsession_main(1, date, 45, 10.5f, member)
+                cyclingSession,
+                runningsession
             };
 
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true); // Simuleer dat het lid bestaat
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true); // Simuleer dat het lid bestaat
             memberRepo
-                .Setup(repo => repo.GetTrainingSessionsMemberInMaandInJaar(member, date))
+                .Setup(repo => repo.GetTrainingSessionsMemberInMaandInJaar(member1, date))
                 .Returns(expectedSessions); // Simuleer de trainingssessies
 
             // Act
             IEnumerable<TrainingSession> actualSessions =
-                memberService.GetTrainingSessionsMemberInMaandInJaar(member, date);
+                memberService.GetTrainingSessionsMemberInMaandInJaar(member1, date);
 
             // Assert
             Assert.Equal(expectedSessions.Count, actualSessions.Count());
@@ -444,9 +348,6 @@ namespace FitnessTests
         [Fact]
         public void GetTrainingSessionsMemberAantalPerMaandInJaar_MemberIsNull_ThrowsServiceException()
         {
-            // Arrange
-            DateTime date = DateTime.Now;
-
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
                 () => memberService.GetTrainingSessionsMemberAantalPerMaandInJaar(null, date)
@@ -460,23 +361,12 @@ namespace FitnessTests
         [Fact]
         public void GetTrainingSessionsMemberAantalPerMaandInJaar_MemberDoesNotExist_ThrowsServiceException()
         {
-            // Arrange
-            Member member = new Member(
-                55,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-            DateTime date = DateTime.Now;
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(false);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(false);
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.GetTrainingSessionsMemberAantalPerMaandInJaar(member, date)
+                () => memberService.GetTrainingSessionsMemberAantalPerMaandInJaar(member1, date)
             );
             Assert.Equal(
                 "MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - member bestaat niet met dit id!",
@@ -487,29 +377,18 @@ namespace FitnessTests
         [Fact]
         public void GetTrainingSessionsMemberAantalPerMaandInJaar_NoSessionsFound_ThrowsServiceException()
         {
-            // Arrange
-            Member member = new Member(
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-
-            DateTime date = new DateTime(2023, 5, 1);
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true);
             memberRepo
-                .Setup(repo => repo.GetTrainingSessionsMemberAantalPerMaandInJaar(member, date))
+                .Setup(repo => repo.GetTrainingSessionsMemberAantalPerMaandInJaar(member1, date))
                 .Returns(new Dictionary<int, int>());
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.GetTrainingSessionsMemberAantalPerMaandInJaar(member, date)
+                () => memberService.GetTrainingSessionsMemberAantalPerMaandInJaar(member1, date)
             );
             Assert.Equal(
-                "MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - Deze member heeft geen TrainingSessions in maand 5 jaar 2023!",
+                "MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - Deze member heeft geen TrainingSessions in maand 1 jaar 2024!",
                 exception.Message
             );
         }
@@ -518,29 +397,21 @@ namespace FitnessTests
         public void GetTrainingSessionsMemberAantalPerMaandInJaar_SessionsFound_ReturnsDictionary()
         {
             // Arrange
-            Member member = new Member(
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-            DateTime date = new DateTime(2023, 5, 1);
-            var expected = new Dictionary<int, int>
+            Dictionary<int, int> expected = new Dictionary<int, int>
             {
                 { 1, 10 }, // Januari heeft 10 sessies
                 { 5, 3 }, // May 2023 has 3 sessions
             };
 
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true);
             memberRepo
-                .Setup(repo => repo.GetTrainingSessionsMemberAantalPerMaandInJaar(member, date))
+                .Setup(repo => repo.GetTrainingSessionsMemberAantalPerMaandInJaar(member1, date))
                 .Returns(expected);
 
             // Act
-            var result = memberService.GetTrainingSessionsMemberAantalPerMaandInJaar(member, date);
+            Dictionary<int, int> result =
+                memberService.GetTrainingSessionsMemberAantalPerMaandInJaar(member1, date);
 
             // Assert
             Assert.Equal(expected, result);
@@ -551,9 +422,6 @@ namespace FitnessTests
         [Fact]
         public void GetTrainingSessionsMemberAantalPerMaandInJaarMetType_MemberIsNull_ThrowsServiceException()
         {
-            // Arrange
-            DateTime date = DateTime.Now;
-
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
                 () => memberService.GetTrainingSessionsMemberAantalPerMaandInJaarMetType(null, date)
@@ -567,24 +435,16 @@ namespace FitnessTests
         [Fact]
         public void GetTrainingSessionsMemberAantalPerMaandInJaarMetType_MemberDoesNotExist_ThrowsServiceException()
         {
-            // Arrange
-            Member member = new Member(
-                55,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-            DateTime date = DateTime.Now;
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(false);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(false);
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
                 () =>
-                    memberService.GetTrainingSessionsMemberAantalPerMaandInJaarMetType(member, date)
+                    memberService.GetTrainingSessionsMemberAantalPerMaandInJaarMetType(
+                        member1,
+                        date
+                    )
             );
             Assert.Equal(
                 "MemberService - GetTrainingSessionsMemberAantalPerMaandInJaarMetType - member bestaat niet met dit id!",
@@ -595,32 +455,24 @@ namespace FitnessTests
         [Fact]
         public void GetTrainingSessionsMemberAantalPerMaandInJaarMetType_NoSessionsFound_ThrowsServiceException()
         {
-            // Arrange
-            Member member = new Member(
-                1,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-            DateTime date = new DateTime(2023, 5, 1);
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true);
             memberRepo
                 .Setup(repo =>
-                    repo.GetTrainingSessionsMemberAantalPerMaandInJaarMetType(member, date)
+                    repo.GetTrainingSessionsMemberAantalPerMaandInJaarMetType(member1, date)
                 )
                 .Returns(new Dictionary<string, Dictionary<int, int>>());
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
                 () =>
-                    memberService.GetTrainingSessionsMemberAantalPerMaandInJaarMetType(member, date)
+                    memberService.GetTrainingSessionsMemberAantalPerMaandInJaarMetType(
+                        member1,
+                        date
+                    )
             );
             Assert.Equal(
-                "MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - Deze member heeft geen TrainingSessions in maand 5 jaar 2023!",
+                "MemberService - GetTrainingSessionsMemberAantalPerMaandInJaar - Deze member heeft geen TrainingSessions in maand 1 jaar 2024!",
                 exception.Message
             );
         }
@@ -628,18 +480,10 @@ namespace FitnessTests
         [Fact]
         public void GetTrainingSessionsMemberAantalPerMaandInJaarMetType_SessionsFound_ReturnsDictionary()
         {
-            // Arrange
-            Member member = new Member(
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-            DateTime date = new DateTime(2023, 5, 1);
-            var expected = new Dictionary<string, Dictionary<int, int>>
+            Dictionary<string, Dictionary<int, int>> expected = new Dictionary<
+                string,
+                Dictionary<int, int>
+            >
             {
                 {
                     "Cycling",
@@ -651,16 +495,17 @@ namespace FitnessTests
                 } // Maand 2, heeft 8 sessies Maand 3, heeft 5 sessies
             };
 
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true);
             memberRepo
                 .Setup(repo =>
-                    repo.GetTrainingSessionsMemberAantalPerMaandInJaarMetType(member, date)
+                    repo.GetTrainingSessionsMemberAantalPerMaandInJaarMetType(member1, date)
                 )
                 .Returns(expected);
 
             // Act
             var result = memberService.GetTrainingSessionsMemberAantalPerMaandInJaarMetType(
-                member,
+                member1,
                 date
             );
 
@@ -686,6 +531,7 @@ namespace FitnessTests
                 TypeKlant.Gold
             );
 
+            // Mocks
             memberRepo.Setup(repo => repo.GetMemberId(memberId)).Returns(expectedMember);
 
             // Act
@@ -702,6 +548,7 @@ namespace FitnessTests
             // Arrange
             int memberId = 1;
 
+            // Mocks
             memberRepo.Setup(repo => repo.GetMemberId(memberId)).Returns((Member)null); // Return null to simulate member not found
 
             // Act & Assert
@@ -727,22 +574,12 @@ namespace FitnessTests
         [Fact]
         public void AddMember_WhenNameExists_ThrowsServiceException()
         {
-            // Arrange
-            Member member = new Member(
-                1,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Fitness" },
-                TypeKlant.Silver
-            );
-            memberRepo.Setup(repo => repo.IsMemberName(member)).Returns(true);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberName(member1)).Returns(true);
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.AddMember(member)
+                () => memberService.AddMember(member1)
             );
             Assert.Equal(
                 "MemberService - AddMember - Member bestaat al (zelfde naam)!",
@@ -753,22 +590,12 @@ namespace FitnessTests
         [Fact]
         public void AddMember_WhenEmailExists_ThrowsServiceException()
         {
-            // Arrange
-            Member member = new Member(
-                1,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Fitness" },
-                TypeKlant.Silver
-            );
-            memberRepo.Setup(repo => repo.IsMemberEmail(member)).Returns(true);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberEmail(member1)).Returns(true);
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.AddMember(member)
+                () => memberService.AddMember(member1)
             );
             Assert.Equal(
                 "MemberService - AddMember - Dit email is al in gebruik!",
@@ -779,28 +606,18 @@ namespace FitnessTests
         [Fact]
         public void AddMember_WhenMemberIsValid_ReturnsMember()
         {
-            // Arrange
-            Member member = new Member(
-                1,
-                "Jane",
-                "Doe",
-                "jane.doe@example.com",
-                "Some Street 456",
-                new DateTime(1995, 5, 15),
-                new List<string> { "Yoga" },
-                TypeKlant.Gold
-            );
-            memberRepo.Setup(repo => repo.IsMemberEmail(member)).Returns(false);
-            memberRepo.Setup(repo => repo.IsMemberName(member)).Returns(false);
-            memberRepo.Setup(repo => repo.AddMember(member)).Returns(member);
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberEmail(member1)).Returns(false);
+            memberRepo.Setup(repo => repo.IsMemberName(member1)).Returns(false);
+            memberRepo.Setup(repo => repo.AddMember(member1)).Returns(member1);
 
             // Act
-            var result = memberService.AddMember(member);
+            var result = memberService.AddMember(member1);
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal(1, result.Member_id);
-            Assert.Equal("Jane", result.FirstName);
+            Assert.Equal("John", result.FirstName);
         }
 
         [Fact]
@@ -819,22 +636,12 @@ namespace FitnessTests
         [Fact]
         public void UpdateMember_MemberDoesNotExist_ThrowsServiceException()
         {
-            // Arrange
-            Member member = new Member(
-                1,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(false); // Simuleer dat het lid niet bestaat
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(false); // Simuleer dat het lid niet bestaat
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.UpdateMember(member)
+                () => memberService.UpdateMember(member1)
             );
             Assert.Equal(
                 "MemberService - UpdateMember - Member bestaat niet met dit id!",
@@ -845,47 +652,27 @@ namespace FitnessTests
         [Fact]
         public void UpdateMember_MemberExists_UpdatesAndReturnsMember()
         {
-            // Arrange
-            Member member = new Member(
-                1,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true); // Simuleer dat het lid bestaat
-            memberRepo.Setup(repo => repo.UpdateMember(member)).Verifiable(); // Verifieer dat UpdateMember wordt aangeroepen
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true); // Simuleer dat het lid bestaat
+            memberRepo.Setup(repo => repo.UpdateMember(member1)).Verifiable(); // Verifieer dat UpdateMember wordt aangeroepen
 
             // Act
-            Member result = memberService.UpdateMember(member);
+            Member result = memberService.UpdateMember(member1);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(member, result);
+            Assert.Equal(member1, result);
         }
 
         [Fact]
         public void DeleteMember_MemberDoesNotExist_ThrowsServiceException()
         {
-            // Arrange
-            Member member = new Member(
-                1,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(false); // Simuleer dat het lid niet bestaat
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(false); // Simuleer dat het lid niet bestaat
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.DeleteMember(member)
+                () => memberService.DeleteMember(member1)
             );
             Assert.Equal(
                 "MemberService - DeleteMember - member bestaat niet met dit id!",
@@ -896,25 +683,15 @@ namespace FitnessTests
         [Fact]
         public void DeleteMember_MemberExists_DeletesMember()
         {
-            // Arrange
-            Member member = new Member(
-                1,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true); // Simuleer dat het lid bestaat
-            memberRepo.Setup(repo => repo.DeleteMember(member)).Verifiable(); // Verifieer dat DeleteMember wordt aangeroepen
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true); // Simuleer dat het lid bestaat
+            memberRepo.Setup(repo => repo.DeleteMember(member1)).Verifiable(); // Verifieer dat DeleteMember wordt aangeroepen
 
             // Act
-            memberService.DeleteMember(member);
+            memberService.DeleteMember(member1);
 
             // Assert
-            memberRepo.Verify(repo => repo.DeleteMember(member), Times.Once); // Verifieer dat DeleteMember slechts één keer werd aangeroepen
+            memberRepo.Verify(repo => repo.DeleteMember(member1), Times.Once); // Verifieer dat DeleteMember slechts één keer werd aangeroepen
         }
 
         [Fact]
@@ -922,7 +699,6 @@ namespace FitnessTests
         {
             // Arrange
             Member member = null;
-            DateTime date = new DateTime(2024, 1, 1);
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
@@ -937,23 +713,12 @@ namespace FitnessTests
         [Fact]
         public void GetAantalGeboekteTijdsloten_MemberDoesNotExist_ThrowsServiceException()
         {
-            // Arrange
-            Member member = new Member(
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-            DateTime date = new DateTime(2024, 1, 1);
-
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(false); // Simuleer dat het lid niet bestaat
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(false); // Simuleer dat het lid niet bestaat
 
             // Act & Assert
             ServiceException exception = Assert.Throws<ServiceException>(
-                () => memberService.GetAantalGeboekteTijdsloten(member, date)
+                () => memberService.GetAantalGeboekteTijdsloten(member1, date)
             );
             Assert.Equal(
                 "MemberService - GetAantalGeboekteTijdsloten - member bestaat niet met dit id!",
@@ -964,30 +729,175 @@ namespace FitnessTests
         [Fact]
         public void GetAantalGeboekteTijdsloten_ValidMember_ReturnsAantalGeboekteTijdsloten()
         {
-            // Arrange
-            Member member = new Member(
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Some Street 123",
-                new DateTime(1990, 1, 1),
-                new List<string> { "Cycling" },
-                TypeKlant.Gold
-            );
-            DateTime date = new DateTime(2024, 1, 1);
-
             int expectedAantal = 4;
 
-            memberRepo.Setup(repo => repo.IsMemberId(member)).Returns(true); // Simuleer dat het lid bestaat
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true); // Simuleer dat het lid bestaat
             memberRepo
-                .Setup(repo => repo.GetAantalGeboekteTijdsloten(date, member))
+                .Setup(repo => repo.GetAantalGeboekteTijdsloten(date, member1))
                 .Returns(expectedAantal); // Simuleer het aantal geboekte tijdsloten
 
             // Act
-            int actualAantal = memberService.GetAantalGeboekteTijdsloten(member, date);
+            int actualAantal = memberService.GetAantalGeboekteTijdsloten(member1, date);
 
             // Assert
             Assert.Equal(expectedAantal, actualAantal);
+        }
+
+        [Fact]
+        public void GetReservationsMember_MemberIsNull_ThrowsServiceException()
+        {
+            // Arrange
+            Member member = null;
+
+            // Act & Assert
+            ServiceException exception = Assert.Throws<ServiceException>(
+                () => memberService.GetReservationsMember(member)
+            );
+
+            Assert.Equal(
+                "MemberService - GetProgramListMember - Member is null",
+                exception.Message
+            );
+        }
+
+        [Fact]
+        public void GetReservationsMember_MemberDoesNotExist_ThrowsServiceException()
+        {
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(false);
+
+            // Act & Assert
+            ServiceException exception = Assert.Throws<ServiceException>(
+                () => memberService.GetReservationsMember(member1)
+            );
+
+            Assert.Equal(
+                "MemberService - GetProgramListMember - Er bestaat geen member met dit id!",
+                exception.Message
+            );
+        }
+
+        [Fact]
+        public void GetReservationsMember_NoReservations_ThrowsServiceException()
+        {
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true);
+
+            memberRepo
+                .Setup(repo => repo.GetReservationsMember(member1))
+                .Returns(new List<Reservation>());
+
+            // Act & Assert
+            ServiceException exception = Assert.Throws<ServiceException>(
+                () => memberService.GetReservationsMember(member1)
+            );
+
+            Assert.Equal(
+                "MemberService - GetReservationsMember - Deze member heeft nog geen enkele reservations!",
+                exception.Message
+            );
+        }
+
+        [Fact]
+        public void GetReservationsMember_ValidMemberWithReservations_ReturnsReservations()
+        {
+            List<Reservation> reservations = new List<Reservation>
+            {
+                new Reservation(
+                    1,
+                    DateTime.Now.AddDays(1),
+                    member1,
+                    new Dictionary<Time_slot, Equipment>()
+                ),
+                new Reservation(
+                    2,
+                    DateTime.Now.AddDays(2),
+                    member1,
+                    new Dictionary<Time_slot, Equipment>()
+                )
+            };
+
+            // Mocks
+            memberRepo.Setup(repo => repo.IsMemberId(member1)).Returns(true);
+
+            memberRepo.Setup(repo => repo.GetReservationsMember(member1)).Returns(reservations);
+
+            // Act
+            IEnumerable<Reservation> result = memberService.GetReservationsMember(member1);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count());
+            Assert.Equal(reservations, result);
+            memberRepo.Verify(repo => repo.IsMemberId(member1), Times.Once);
+            memberRepo.Verify(repo => repo.GetReservationsMember(member1), Times.Once);
+        }
+
+        [Fact]
+        public void GetMemberNaam_NoMembersFound_ThrowsServiceException()
+        {
+            // Arrange
+            string voornaam = "Johnaton";
+            string achternaam = "Doe";
+
+            // Mocks
+            memberRepo
+                .Setup(repo => repo.GetMemberNaam(voornaam, achternaam))
+                .Returns(new List<Member>());
+
+            // Act & Assert
+            ServiceException exception = Assert.Throws<ServiceException>(
+                () => memberService.GetMemberNaam(voornaam, achternaam)
+            );
+
+            Assert.Equal(
+                "MemberService - GetMemberNaam - Er is geen member met deze naam!",
+                exception.Message
+            );
+        }
+
+        [Fact]
+        public void GetMemberNaam_MembersFound_ReturnsMembers()
+        {
+            // Arrange
+            string voornaam = "John";
+            string achternaam = "Doe";
+
+            List<Member> members = new List<Member>
+            {
+                new Member(
+                    1,
+                    "Johnatanial",
+                    "Doe",
+                    "Johnatanial.doe@example.com",
+                    "Street 123",
+                    DateTime.Now,
+                    new List<string> { "Yoga" },
+                    TypeKlant.Silver
+                ),
+                new Member(
+                    2,
+                    "John",
+                    "Doe",
+                    "john.doe2@example.com",
+                    "Street 456",
+                    DateTime.Now,
+                    new List<string> { "Pilates" },
+                    TypeKlant.Gold
+                )
+            };
+
+            // Mocks
+            memberRepo.Setup(repo => repo.GetMemberNaam(voornaam, achternaam)).Returns(members);
+
+            // Act
+            IEnumerable<Member> result = memberService.GetMemberNaam(voornaam, achternaam);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count());
+            Assert.Equal(members, result);
+            memberRepo.Verify(repo => repo.GetMemberNaam(voornaam, achternaam), Times.Once);
         }
     }
 }

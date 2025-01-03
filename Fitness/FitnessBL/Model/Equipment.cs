@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FitnessBL.Exceptions;
 
@@ -33,10 +34,17 @@ namespace FitnessBL.Model
             device_type = beschrijving;
         }
 
+        public Equipment() { }
+
         public Equipment(int id, string beschrijving)
         {
             Equipment_id = id;
             device_type = beschrijving;
+        }
+
+        public override string? ToString()
+        {
+            return $"EquipmentId: {Equipment_id}, Device type: {device_type}";
         }
     }
 }
