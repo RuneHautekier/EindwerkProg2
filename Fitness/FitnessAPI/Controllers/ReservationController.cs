@@ -34,13 +34,15 @@ namespace FitnessAPI.Controllers
         [HttpGet("/ReservationViaId/{id}")]
         public IActionResult GetReservationID(int id)
         {
-            Reservation reservation = reservationService.GetReservationId(id);
-            if (reservation == null)
+            try
             {
-                return NotFound($"reservation met id {id} niet gevonden!");
+                Reservation reservation = reservationService.GetReservationId(id);
+                return Ok(reservation);
             }
-
-            return Ok(reservation);
+            catch (ServiceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("/ReservationAanmaken")]
@@ -85,9 +87,9 @@ namespace FitnessAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception ex)
+            catch (ServiceException ex)
             {
-                return StatusCode(500, $"Er is een fout opgetreden: {ex.Message}");
+                return BadRequest(ex.Message);
             }
         }
 
@@ -124,6 +126,10 @@ namespace FitnessAPI.Controllers
                 );
             }
             catch (ReservationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ServiceException ex)
             {
                 return BadRequest(ex.Message);
             }

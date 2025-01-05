@@ -13,12 +13,10 @@ namespace FitnessAPI.Controllers
     public class ProgramController : ControllerBase
     {
         private ProgramService programService;
-        private MemberService memberService;
 
-        public ProgramController(ProgramService programService, MemberService memberService)
+        public ProgramController(ProgramService programService)
         {
             this.programService = programService;
-            this.memberService = memberService;
         }
 
         [HttpGet("/ProgramViaProgramCode/{programCode}")]
@@ -88,7 +86,7 @@ namespace FitnessAPI.Controllers
 
                 if (StartDate != new DateTime(0001, 01, 01))
                     program.Startdate = StartDate;
-                if (maxMembers != 0)
+                if (maxMembers > 0)
                     program.Max_members = maxMembers;
 
                 // Update het record in de database

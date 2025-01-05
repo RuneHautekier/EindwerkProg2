@@ -136,6 +136,10 @@ namespace FitnessAPI.Controllers
                     equipmentService.GetAllAvailableEquipment(date, timeSlotId);
                 return Ok(availableEquipments);
             }
+            catch (FormatException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (ServiceException ex)
             {
                 return BadRequest(ex.Message);

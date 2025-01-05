@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FitnessAPI\FitnessAPI.csproj" />
+    <ProjectReference Include="..\FitnessTests\FitnessTests.csproj" />
   </ItemGroup>
 
 </Project>

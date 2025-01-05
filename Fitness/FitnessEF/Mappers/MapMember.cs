@@ -57,7 +57,7 @@ namespace FitnessEF.Mappers
         // De lijst van intresses uit domeinlaag mappen naar string voor database
         public static string ListToString(List<string> intrests)
         {
-            if (intrests.Count == 0 || intrests == null)
+            if (intrests == null  || intrests.Count == 0)
             {
                 return null;
             }

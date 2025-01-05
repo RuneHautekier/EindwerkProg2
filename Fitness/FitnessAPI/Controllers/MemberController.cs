@@ -21,7 +21,7 @@ namespace FitnessAPI.Controllers
         }
 
         [HttpGet("/LijstMembers")]
-        public ActionResult<IEnumerable<Member>> GetMembers()
+        public IActionResult GetMembers()
         {
             try
             {
@@ -48,56 +48,107 @@ namespace FitnessAPI.Controllers
             }
         }
 
+        //[HttpGet("/GetTrainingSessionsMember/{id}")]
+        //public IActionResult GetTrainingSessionsMember(int id)
+        //{
+        //    try
+        //    {
+        //        Member member = memberService.GetMemberId(id);
+        //        IEnumerable<TrainingSession> TrainingSessions =
+        //            memberService.GetTrainingSessionsMember(member);
+
+        //        // Maak een lijst om dynamische DTO-objecten op te slaan
+        //        List<dynamic> trainingSessionDTOs = new List<dynamic>();
+
+        //        // Itereer door alle trainingssessies
+        //        foreach (TrainingSession ts in TrainingSessions)
+        //        {
+        //            // Controleer of het een RunningSession is
+        //            if (ts is Runningsession_main runningSession)
+        //            {
+        //                // Voeg een DTO-object toe met alleen relevante velden voor een RunningSession
+        //                trainingSessionDTOs.Add(
+        //                    new
+        //                    {
+        //                        SessionType = "Running",
+        //                        Id = runningSession.Runningsession_id,
+        //                        Date = runningSession.Date,
+        //                        Duration = runningSession.Duration,
+        //                        AvgSpeed = runningSession.Avg_speed
+        //                    }
+        //                );
+        //            }
+        //            // Controleer of het een CyclingSession is
+        //            else if (ts is Cyclingsession cyclingSession)
+        //            {
+        //                // Voeg een DTO-object toe met alleen relevante velden voor een CyclingSession
+        //                trainingSessionDTOs.Add(
+        //                    new
+        //                    {
+        //                        SessionType = "Cycling",
+        //                        Id = cyclingSession.Cyclingsession_id,
+        //                        Date = cyclingSession.Date,
+        //                        Duration = cyclingSession.Duration,
+        //                        AvgWatt = cyclingSession.Avg_watt,
+        //                        MaxWatt = cyclingSession.Max_watt,
+        //                        AvgCadence = cyclingSession.Avg_cadence,
+        //                        MaxCadence = cyclingSession.Max_cadence,
+        //                        TrainingsType = cyclingSession.TrainingsType,
+        //                        Comment = cyclingSession.Comment
+        //                    }
+        //                );
+        //            }
+        //        }
+
+        //        return Ok(trainingSessionDTOs);
+        //    }
+        //    catch (ServiceException ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
+
         [HttpGet("/GetTrainingSessionsMember/{id}")]
         public IActionResult GetTrainingSessionsMember(int id)
         {
             try
             {
                 Member member = memberService.GetMemberId(id);
-                IEnumerable<TrainingSession> TrainingSessions =
+                IEnumerable<TrainingSession> trainingSessions =
                     memberService.GetTrainingSessionsMember(member);
 
-                // Maak een lijst om dynamische DTO-objecten op te slaan
-                List<dynamic> trainingSessionDTOs = new List<dynamic>();
+                // Maak een lijst om DTO-objecten op te slaan
+                List<TrainingSessionDTO> trainingSessionDTOs = new List<TrainingSessionDTO>();
 
                 // Itereer door alle trainingssessies
-                foreach (TrainingSession ts in TrainingSessions)
+                foreach (TrainingSession ts in trainingSessions)
                 {
-                    // Controleer of het een RunningSession is
+                    TrainingSessionDTO sessionDTO = new TrainingSessionDTO
+                    {
+                        Date = ts.Date,
+                        Duration = ts.Duration
+                    };
+
                     if (ts is Runningsession_main runningSession)
                     {
-                        // Voeg een DTO-object toe met alleen relevante velden voor een RunningSession
-                        trainingSessionDTOs.Add(
-                            new
-                            {
-                                SessionType = "Running",
-                                Id = runningSession.Runningsession_id,
-                                Date = runningSession.Date,
-                                Duration = runningSession.Duration,
-                                AvgSpeed = runningSession.Avg_speed
-                            }
-                        );
+                        sessionDTO.Id = runningSession.Runningsession_id;
+                        sessionDTO.SessionType = "Running";
+                        sessionDTO.AvgSpeed = runningSession.Avg_speed;
                     }
-                    // Controleer of het een CyclingSession is
                     else if (ts is Cyclingsession cyclingSession)
                     {
-                        // Voeg een DTO-object toe met alleen relevante velden voor een CyclingSession
-                        trainingSessionDTOs.Add(
-                            new
-                            {
-                                SessionType = "Cycling",
-                                Id = cyclingSession.Cyclingsession_id,
-                                Date = cyclingSession.Date,
-                                Duration = cyclingSession.Duration,
-                                AvgWatt = cyclingSession.Avg_watt,
-                                MaxWatt = cyclingSession.Max_watt,
-                                AvgCadence = cyclingSession.Avg_cadence,
-                                MaxCadence = cyclingSession.Max_cadence,
-                                TrainingsType = cyclingSession.TrainingsType,
-                                Comment = cyclingSession.Comment
-                            }
-                        );
+                        sessionDTO.Id = cyclingSession.Cyclingsession_id;
+                        sessionDTO.SessionType = "Cycling";
+                        sessionDTO.AvgWatt = cyclingSession.Avg_watt;
+                        sessionDTO.MaxWatt = cyclingSession.Max_watt;
+                        sessionDTO.AvgCadence = cyclingSession.Avg_cadence;
+                        sessionDTO.MaxCadence = cyclingSession.Max_cadence;
+                        sessionDTO.TrainingsType = cyclingSession.TrainingsType;
+                        sessionDTO.Comment = cyclingSession.Comment;
                     }
+
+                    // Voeg de DTO toe aan de lijst
+                    trainingSessionDTOs.Add(sessionDTO);
                 }
 
                 return Ok(trainingSessionDTOs);
@@ -192,47 +243,38 @@ namespace FitnessAPI.Controllers
                 IEnumerable<TrainingSession> TrainingSessions =
                     memberService.GetTrainingSessionsMemberInMaandInJaar(member, date);
 
-                // Maak een lijst om dynamische DTO-objecten op te slaan
-                List<dynamic> trainingSessionDTOs = new List<dynamic>();
+                // Maak een lijst om DTO-objecten op te slaan
+                List<TrainingSessionDTO> trainingSessionDTOs = new List<TrainingSessionDTO>();
 
                 // Itereer door alle trainingssessies
                 foreach (TrainingSession ts in TrainingSessions)
                 {
-                    // Controleer of het een RunningSession is
+                    TrainingSessionDTO sessionDTO = new TrainingSessionDTO
+                    {
+                        Date = ts.Date,
+                        Duration = ts.Duration
+                    };
+
                     if (ts is Runningsession_main runningSession)
                     {
-                        // Voeg een DTO-object toe met alleen relevante velden voor een RunningSession
-                        trainingSessionDTOs.Add(
-                            new
-                            {
-                                SessionType = "Running",
-                                Id = runningSession.Runningsession_id,
-                                Date = runningSession.Date,
-                                Duration = runningSession.Duration,
-                                AvgSpeed = runningSession.Avg_speed
-                            }
-                        );
+                        sessionDTO.Id = runningSession.Runningsession_id;
+                        sessionDTO.SessionType = "Running";
+                        sessionDTO.AvgSpeed = runningSession.Avg_speed;
                     }
-                    // Controleer of het een CyclingSession is
                     else if (ts is Cyclingsession cyclingSession)
                     {
-                        // Voeg een DTO-object toe met alleen relevante velden voor een CyclingSession
-                        trainingSessionDTOs.Add(
-                            new
-                            {
-                                SessionType = "Cycling",
-                                Id = cyclingSession.Cyclingsession_id,
-                                Date = cyclingSession.Date,
-                                Duration = cyclingSession.Duration,
-                                AvgWatt = cyclingSession.Avg_watt,
-                                MaxWatt = cyclingSession.Max_watt,
-                                AvgCadence = cyclingSession.Avg_cadence,
-                                MaxCadence = cyclingSession.Max_cadence,
-                                TrainingsType = cyclingSession.TrainingsType,
-                                Comment = cyclingSession.Comment
-                            }
-                        );
+                        sessionDTO.Id = cyclingSession.Cyclingsession_id;
+                        sessionDTO.SessionType = "Cycling";
+                        sessionDTO.AvgWatt = cyclingSession.Avg_watt;
+                        sessionDTO.MaxWatt = cyclingSession.Max_watt;
+                        sessionDTO.AvgCadence = cyclingSession.Avg_cadence;
+                        sessionDTO.MaxCadence = cyclingSession.Max_cadence;
+                        sessionDTO.TrainingsType = cyclingSession.TrainingsType;
+                        sessionDTO.Comment = cyclingSession.Comment;
                     }
+
+                    // Voeg de DTO toe aan de lijst
+                    trainingSessionDTOs.Add(sessionDTO);
                 }
 
                 return Ok(trainingSessionDTOs);
@@ -358,28 +400,24 @@ namespace FitnessAPI.Controllers
                 IEnumerable<TrainingSession> TrainingSessions =
                     memberService.GetTrainingSessionsMemberInMaandInJaar(member, date);
 
-                // Maak een lijst om dynamische DTO-objecten op te slaan
-                List<dynamic> trainingSessionDTOs = new List<dynamic>();
+                // Maak een lijst om DTO-objecten op te slaan
+                List<TrainingSessionDTO> trainingSessionDTOs = new List<TrainingSessionDTO>();
 
                 // Itereer door alle trainingssessies
                 foreach (TrainingSession ts in TrainingSessions)
                 {
-                    // Controleer of het een RunningSession is
+                    TrainingSessionDTO sessionDTO = new TrainingSessionDTO
+                    {
+                        Date = ts.Date,
+                        Duration = ts.Duration
+                    };
+
                     if (ts is Runningsession_main runningSession)
                     {
-                        // Voeg een DTO-object toe met alleen relevante velden voor een RunningSession
-                        trainingSessionDTOs.Add(
-                            new
-                            {
-                                SessionType = "Running",
-                                Id = runningSession.Runningsession_id,
-                                Date = runningSession.Date,
-                                Duration = runningSession.Duration,
-                                AvgSpeed = runningSession.Avg_speed
-                            }
-                        );
+                        sessionDTO.Id = runningSession.Runningsession_id;
+                        sessionDTO.SessionType = "Running";
+                        sessionDTO.AvgSpeed = runningSession.Avg_speed;
                     }
-                    // Controleer of het een CyclingSession is
                     else if (ts is Cyclingsession cyclingSession)
                     {
                         string trainingsImpact = "High";
@@ -392,24 +430,19 @@ namespace FitnessAPI.Controllers
                         )
                             trainingsImpact = "Medium";
 
-                        // Voeg een DTO-object toe met alleen relevante velden voor een CyclingSession
-                        trainingSessionDTOs.Add(
-                            new
-                            {
-                                SessionType = "Cycling",
-                                Id = cyclingSession.Cyclingsession_id,
-                                Date = cyclingSession.Date,
-                                Duration = cyclingSession.Duration,
-                                AvgWatt = cyclingSession.Avg_watt,
-                                MaxWatt = cyclingSession.Max_watt,
-                                AvgCadence = cyclingSession.Avg_cadence,
-                                MaxCadence = cyclingSession.Max_cadence,
-                                TrainingsType = cyclingSession.TrainingsType,
-                                Comment = cyclingSession.Comment,
-                                TrainingsImpact = trainingsImpact
-                            }
-                        );
+                        sessionDTO.Id = cyclingSession.Cyclingsession_id;
+                        sessionDTO.SessionType = "Cycling";
+                        sessionDTO.AvgWatt = cyclingSession.Avg_watt;
+                        sessionDTO.MaxWatt = cyclingSession.Max_watt;
+                        sessionDTO.AvgCadence = cyclingSession.Avg_cadence;
+                        sessionDTO.MaxCadence = cyclingSession.Max_cadence;
+                        sessionDTO.TrainingsType = cyclingSession.TrainingsType;
+                        sessionDTO.Comment = cyclingSession.Comment;
+                        sessionDTO.TrainingsImpact = trainingsImpact;
                     }
+
+                    // Voeg de DTO toe aan de lijst
+                    trainingSessionDTOs.Add(sessionDTO);
                 }
 
                 return Ok(trainingSessionDTOs);
@@ -588,6 +621,10 @@ namespace FitnessAPI.Controllers
                     new { id = member.Member_id }, // Parameter voor de Get eindpoint
                     member // Return the created gebruiker object
                 );
+            }
+            catch (MemberException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (ServiceException ex)
             {
